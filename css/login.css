@@ -1,0 +1,102 @@
+:root {
+    --primary-color: #28a457;
+    --dark-primary-color: #196636;
+    --secondary-color: #c9c8c8;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--primary-color);
+}
+
+#form {
+    width: 500px;
+    margin: 20vh auto 0;
+    padding: 20px 50px;
+    background-color: whitesmoke;
+    border-radius: 10px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+#form h1 {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.input-control {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.input-control label {
+    font-size: 1.4em;
+    font-weight: 500;
+    margin-left: 5px;
+}
+
+.input-control input {
+    padding: 10px 10px;
+    border-radius: 10px;
+    border: 2px solid var(--secondary-color);
+}
+
+.input-control input:focus {
+    outline: 0;
+    border: 2px solid var(--primary-color);
+}
+
+#form button {
+    padding: 10px;
+    border-radius: 20px;
+    width: 50%;
+    margin: 20px auto 20px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1.4em;
+    font-weight: 500;
+    border: none;
+    transition: 0.3s;
+}
+
+#form button:hover {
+    cursor: pointer;
+    background-color: var(--dark-primary-color);
+}
+
+.error {
+    color: red;
+}
+
+
+@media screen and (max-width: 570px) {
+    #form {
+        width: 400px;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    #form {
+        width: 290px;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    #form {
+        width: 150px;
+    }
+
+    #form button {
+        width: 100%;
+        font-size: 1em;
+    }
+}
