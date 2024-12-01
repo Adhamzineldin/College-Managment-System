@@ -15,6 +15,7 @@ body {
     padding: 0;
 
 }
+
 header {
     margin-top: 56px;
 }
@@ -120,3 +121,10 @@ button:hover {
         font-size: 20px;
     }
 }
+
+ iframe {
+        width: 100%;
+
+        border: none;
+    }
+

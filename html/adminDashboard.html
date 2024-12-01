@@ -39,29 +39,20 @@
     </header>
 
     <div class="modal fade" id="updateCredentialsModal" tabindex="-1" aria-labelledby="updateCredentialsModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateCredentialsModalLabel">Update Admin Credentials</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="new-username" class="form-label">New Username</label>
-                        <input type="text" class="form-control" id="new-username" placeholder="Enter new username">
-                    </div>
-                    <div class="mb-3">
-                        <label for="new-password" class="form-label">New Password</label>
-                        <input type="password" class="form-control" id="new-password" placeholder="Enter new password">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="save-credentials">Save Changes</button>
+    <div class="modal-dialog modal-lg"> <!-- Use modal-lg for a larger modal -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateCredentialsModalLabel">Update Credentials</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="iframe-container">
+                    <iframe src="alterdata.html" frameborder="0" width="500vw" height="520vh"></iframe>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <main class="container">
         <div class="grid-container">

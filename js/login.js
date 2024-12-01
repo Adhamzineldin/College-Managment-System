@@ -1,3 +1,5 @@
+localStorage.removeItem('currentUser');
+
 const form = document.getElementById('form');
 const id = document.getElementById('ID');
 const password = document.getElementById('password');

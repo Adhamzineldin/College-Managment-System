@@ -172,6 +172,46 @@ app.post('/api/add-user', (req, res) => {
     );
 });
 
+// Update user route
+app.put('/api/updateUser/:id', (req, res) => {
+    const userId = req.params.id;  // Get the user ID from the URL parameter
+    const { email, name, password, role, subjects, finalGrade } = req.body;
+
+    // Validate input data
+    if (!email || !name || !password || !role || !subjects || !userId) {
+        return res.status(400).json({ message: 'All fields are required, including the user ID.' });
+    }
+
+    // Convert subjects to JSON string if it is an array
+    const subjectsJson = Array.isArray(subjects) ? JSON.stringify(subjects) : subjects;
+
+    // Prepare finalGrade, default to 100 if not provided
+    const finalGradeToUpdate = finalGrade || 100;
+
+    // Update query for the given user ID
+    const query = `UPDATE accounts SET email = ?, name = ?, password = ?, role = ?, subjects = ?, finalGrade = ? WHERE id = ?`;
+
+    // Parameters for the update query
+    const params = [email, name, password, role, subjectsJson, finalGradeToUpdate, userId];
+
+    db.run(query, params, function (err) {
+        if (err) {
+            console.error('Error updating user:', err.message);
+            return res.status(500).json({ message: 'Error updating user.' });
+        }
+
+        // If no rows were affected, that means no user was found with the given ID
+        if (this.changes === 0) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        // Successful update
+        return res.status(200).json({ message: 'User updated successfully.' });
+    });
+});
+
+
+
 app.get('/api/students', (req, res) => {
     const query = `SELECT * FROM accounts WHERE role = 'student'`;
     db.all(query, [], (err, rows) => {
