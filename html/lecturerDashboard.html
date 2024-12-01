@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .subjects-list {
+            margin: 1rem 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .subjects-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: #007BFF;
+            color: white;
+            border-radius: 4px;
+        }
+
+        .signout-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .signout-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Welcome, <span id="lecturer-name">Lecturer</span></h1>
+        <h2>Your Subjects:</h2>
+        <ul id="subjects-list" class="subjects-list">
+            <!-- Subjects will be populated here -->
+        </ul>
+        <button class="signout-btn" id="signout-btn">Sign Out</button>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        // Assume lecturer ID is stored in session or passed as a query parameter
+        const lecturerId = '20230002'; // Example hardcoded lecturer ID
+
+        async function fetchLecturerData() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/lecturer/${lecturerId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch lecturer data');
+                }
+                const lecturer = await response.json();
+                document.getElementById('lecturer-name').innerText = lecturer.name;
+
+                // Populate subjects
+                const subjectsList = document.getElementById('subjects-list');
+                lecturer.subjects.forEach(subjectId => {
+                    const subjectItem = document.createElement('li');
+                    subjectItem.innerText = subjectId; // Replace with subject name if needed
+                    subjectsList.appendChild(subjectItem);
+                });
+            } catch (error) {
+                console.error('Error fetching lecturer data:', error);
+            }
+        }
+
+        function setupSignOut() {
+            document.getElementById('signout-btn').addEventListener('click', () => {
+                alert('Signing out...');
+                // Add actual sign-out logic here, e.g., clearing tokens and redirecting
+                window.location.href = '/login';
+            });
+        }
+
+        // Initialize the dashboard
+        fetchLecturerData();
+        setupSignOut();
+    </script>
+</body>
+</html>
