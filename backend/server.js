@@ -53,6 +53,24 @@ const db = new sqlite3.Database('./backend/users.db', (err) => {
             }
         );
 
+        db.run(
+            `CREATE TABLE IF NOT EXISTS exams (
+                id TEXT PRIMARY KEY,
+                subject_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                date TEXT NOT NULL,
+                duration INTEGER NOT NULL,
+                total_marks INTEGER NOT NULL,
+                FOREIGN KEY (subject_id) REFERENCES subjects(id)
+            )`, (err) => {
+                if (err) {
+                    console.error('Error creating exams table:', err.message);
+                }
+            }
+        );
+
+
+
         // Insert dummy subjects only if the subjects table is empty
         db.get('SELECT COUNT(*) AS count FROM subjects', (err, row) => {
             if (err) {
@@ -465,6 +483,156 @@ app.delete('/api/subject/:id', (req, res) => {
 function generateSubjectId() {
     return `SUB${Date.now().toString().slice(-6)}`; // Divide by 1000 to reduce the number of digits
 }
+
+
+
+// Add exam route
+app.post('/api/exam', (req, res) => {
+    const { subject_id, name, date, duration, total_marks } = req.body;
+
+    if (!subject_id || !name || !date || !duration || !total_marks) {
+        return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    const id = generateId(); // Generate a unique ID for the exam
+
+    const query = `INSERT INTO exams (id, subject_id, name, date, duration, total_marks) VALUES (?, ?, ?, ?, ?, ?)`;
+    db.run(
+        query,
+        [id, subject_id, name, date, duration, total_marks],
+        (err) => {
+            if (err) {
+                console.error('Error adding exam:', err.message);
+                return res.status(500).json({ message: 'Error adding exam to the database.' });
+            }
+            return res.status(200).json({ message: 'Exam added successfully.', id });
+        }
+    );
+});
+
+
+
+
+// Get all exams route
+app.get('/api/exams', (req, res) => {
+    const query = `SELECT * FROM exams`;
+    db.all(query, [], (err, rows) => {
+        if (err) {
+            console.error('Error retrieving exams:', err.message);
+            return res.status(500).json({ message: 'Internal server error.' });
+        }
+        return res.status(200).json({ exams: rows });
+    });
+});
+
+
+// Get all exams by subject_id route
+app.get('/api/exams/:subject_id', (req, res) => {
+    const subjectId = req.params.subject_id; // Get subject_id from URL parameter
+
+    const query = `SELECT * FROM exams WHERE subject_id = ?`;
+
+    db.all(query, [subjectId], (err, rows) => {
+        if (err) {
+            console.error('Error retrieving exams:', err.message);
+            return res.status(500).json({ message: 'Internal server error.' });
+        }
+
+
+
+        return res.status(200).json({ exams: rows });
+    });
+});
+
+
+
+
+
+
+// Get an exam by ID
+app.get('/api/exam/:id', (req, res) => {
+    const examId = req.params.id; // Get the exam ID from the URL parameter
+    const query = `SELECT * FROM exams WHERE id = ?`;
+
+    db.get(query, [examId], (err, row) => {
+        if (err) {
+            console.error('Error retrieving exam:', err.message);
+            return res.status(500).json({ message: 'Internal server error.' });
+        }
+
+        if (!row) {
+            return res.status(404).json({ message: 'Exam not found.' });
+        }
+
+        return res.status(200).json(row); // Return the exam data as a JSON response
+    });
+});
+
+
+
+// Update an exam route
+app.put('/api/exam/:id', (req, res) => {
+    const examId = req.params.id;  // Get the exam ID from the URL parameter
+    const { subject_id, name, date, duration, total_marks } = req.body;
+
+    // Validate input data
+    if (!subject_id || !name || !date || !duration || !total_marks) {
+        return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    const query = `UPDATE exams SET subject_id = ?, name = ?, date = ?, duration = ?, total_marks = ? WHERE id = ?`;
+
+    db.run(
+        query,
+        [subject_id, name, date, duration, total_marks, examId],
+        function (err) {
+            if (err) {
+                console.error('Error updating exam:', err.message);
+                return res.status(500).json({ message: 'Error updating exam.' });
+            }
+
+            // If no rows were affected, that means no exam was found with the given ID
+            if (this.changes === 0) {
+                return res.status(404).json({ message: 'Exam not found.' });
+            }
+
+            return res.status(200).json({ message: 'Exam updated successfully.' });
+        }
+    );
+});
+
+
+
+// Delete exam route
+app.delete('/api/exam/:id', (req, res) => {
+    const examId = req.params.id;
+
+    const query = `DELETE FROM exams WHERE id = ?`;
+    db.run(query, [examId], (err) => {
+        if (err) {
+            console.error('Error deleting exam:', err.message);
+            return res.status(500).json({ message: 'Error deleting exam.' });
+        }
+        return res.status(200).json({ message: 'Exam deleted successfully.' });
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
