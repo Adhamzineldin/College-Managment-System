@@ -1,0 +1,67 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f8f9fa;
+}
+
+/* Form */
+#paymentForm {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #007bff;
+}
+
+/* Error message */
+.sms {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Success message */
+.success-message {
+    display: none;
+}
+
+.alert {
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+}
+
+.profile-text {
+    color: white;
+    text-decoration: underline;
+    transition: 0.3s;
+}
+
+.profile-text:hover {
+    color: #ffd700;
+}
+
+/* Payment Button */
+button.pay {
+    background-color: #007bff;
+    color: white;
+}
+
+button.pay:hover {
+    background-color: #0056b3;
+}
+
+button.reset {
+    background-color: #6c757d;
+    color: white;
+}
+
+button.reset:hover {
+    background-color: #5a6268;
+}

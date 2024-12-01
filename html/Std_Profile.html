@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="../css/Student-CSS/Std_Profile.css">
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="../css/Student-CSS/bootstrap_css/bootstrap.css">
+    <style>
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <h1 class="navbar-brand">Student Profile</h1>
+        
+        <!-- for responsive -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="Std-Profile.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="Std-Degree.html">Degree</a>
+                </li>
+            </ul>
+            <div>
+                <a href="Std_Payment.html" class="btn btn-custom Gold-btn">Express</a>
+                <a href="Std-Home.html" class="btn btn-custom">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Section -->
+    <div class="container">
+        <div class="card">
+            <div id="Header" class="card-header text-center">Student Profile</div>
+            <div class="card-body">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Email</th>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Subjects</th>
+                        </tr>
+                    </thead>
+                    <tbody id="profileData">
+                        <!-- Data will be injected here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Change Password Section -->
+        <div class="mt-4">
+            <button class="btn btn-password-toggle" data-toggle="collapse" data-target="#passwordSection">
+                Change Your Password
+            </button>
+            <div id="passwordSection" class="collapse mt-3">
+                <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password">
+                </div>
+                <button class="btn btn-primary" onclick="changePassword()">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/Student-js/Std_Profile.js"></script>
+    <script src="../js/Student-js/bootstrap_js/jquery-3.5.1.min.js"></script>
+    <script src="../js/Student-js/bootstrap_js/popper.min.js"></script>
+    <script src="../js/Student-js/bootstrap_js/bootstrap.js"></script>
+</body>
+
+</html>

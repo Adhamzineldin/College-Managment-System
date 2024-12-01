@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="/SA-Cleaner-Project/css/Student-CSS/bootstrap_css/bootstrap.css">
+    <title>Student Home</title>
+</head>
+<body>
+<!-- navbar for Home site -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-warning">
+        <div class="row container-fluid">
+            <a href="Std_Home.html" class="col-4 navbar-brand text-dark" style=" font-weight: bold; font-size: 24px;">
+                <img src="../static/img.png" alt="Logo" width="35" height="35" class="d-inline-block align-text-top">
+                FCAI_Examination
+            </a>
+            <a href="#menu" class="navbar-toggler" data-toggle="collapse">
+                <span class="navbar-toggler-icon"></span>
+            </a>
+            <div id="menu" class="col-lg-8 cal-md-12 row collapse navbar-collapse ml-3">
+                <ul class="col-8 navbar-nav">
+                    <li class="nav-item"><a class="nav-link" style="font-weight: bold;font-size: 18px;margin-right: 15px;" href="Std_Profile.html">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" style="font-weight: bold;font-size: 18px;margin-right: 15px;" href="Std_Exams.html">Exams</a></li>
+                    <li class="nav-item"><a class="nav-link" style="font-weight: bold;font-size: 18px;margin-right: 15px;" href="Std_Degrees.html">Degree</a></li>
+                    <li class="nav-item"><a class="nav-link" style="font-weight: bold;font-size: 18px;margin-right: 15 px;" href="Std_Payment.html">Expenses</a></li>
+                </ul>
+                <form class="col-lg-4 col-md-12" style="margin: 5px 0 -10px 0;">
+                    <div class="form-group d-flex">
+                        <input type="search" class="form-control mr-2" placeholder="Search..."> 
+                        <button class="btn btn-outline-dark">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>  
+
+
+<!-- header for home site -->
+    <div id="slide" class="carousel slide" style="margin-bottom: 100px;" data-bs-ride="carousel">
+        <ol class="carousel-indicators">
+            <li data-target="#slide" data-slide-to="0" class="active"></li>
+            <li data-target="#slide" data-slide-to="1"></li>
+            <li data-target="#slide" data-slide-to="2"></li>
+            <li data-target="#slide" data-slide-to="3"></li>
+            <li data-target="#slide" data-slide-to="4"></li>
+        </ol>
+        <div class="carousel-inner" style="height: 700px;">
+            <div class="carousel-item active">
+                <img src="../static/img_1.png" alt="Unverstiy photo" class="w-100" style="height: 700px;">
+                <div class="carousel-caption">
+                    <h5><a href="Std_Home.html">FCAI_Examination</a></h5>
+                    <p>This page contain some information about college</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="../static/img_2.png" alt="Exam photo" class="w-100" style="height: 700px;">
+                <div class="carousel-caption">
+                    <h5><a href="Std_Exam.html">Exam</a></h5>
+                    <p>This page contain Exam at registered subject</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="../static/img.png" alt="payment photo" class="w-100" style="height: 700px;">
+                <div class="carousel-caption">
+                    <h5><a href="Std_Payment.html">Payment</a></h5>
+                    <p>This page consist of form to pay expenses</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="../static/img_1.png" alt="profile photo" class="w-100" style="height: 700px;">
+                <div class="carousel-caption">
+                    <h5><a href="Std_Profile.html">Profile</a></h5>
+                    <p>You can change some information about you </p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="../static/img_1.png" alt="degrees photo" class="w-100" style="height: 700px;">
+                <div class="carousel-caption">
+                    <h5><a href="Std_Degrees.html">Degrees</a></h5>
+                    <p>You can see your dergrees from this page</p>
+                </div>
+            </div>
+        </div>
+        <a href="#slide" class="carousel-control-next" data-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </a>
+        <a href="#slide" class="carousel-control-prev" data-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </a>
+    </div>
+
+<!-- department -->
+    <div class="container">
+        <h1 class="text-center text-warning mb-5" style="text-decoration: 3px solid gold underline;">Departments Information</h1>
+        <div class="row">
+            <div class="col-lg-5 card" style="padding: 0;margin-bottom: 100px;">
+                <img src="../static/img_1.png" alt="AI photo" class="card-img-top" style="height: 300px;">
+                <div class="card-body">
+                    <h1 class="card-title text-center">AI Department</h1>
+                    <button data-target="#AI_description" class="btn btn-warning w-100" data-toggle="collapse">Read about Department</button>
+                    <div id="AI_description" class="collapse bg-warning p-4">
+                        <p>
+                            Artificial Intelligence (AI) refers to the capability of a digital 
+                            computer or computer-controlled robot to perform tasks commonly associated 
+                            with intelligent beings. These tasks include reasoning, learning, problem-solving, 
+                            perception, and language understanding. AI encompasses a wide range of technologies,
+                            including machine learning, deep learning, and natural language processing (NLP)
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2"></div>
+            <div class="col-lg-5 card" style="padding: 0;margin-bottom: 100px;">
+                <img src="../static/img_2.png" alt="CS_Photo" class="card-img-top" style="height: 300px;">
+                <div class="card-body">
+                    <h1 class="card-title text-center">CS Department</h1>
+                    <button data-target="#CS_description" class="btn btn-warning w-100" data-toggle="collapse">Read about Department</button>
+                    <div id="CS_description" class="collapse bg-warning p-4">
+                        <p>
+                            Computer science is a discipline that studies computation, 
+                            information, and automation1. It spans theoretical disciplines 
+                            such as algorithms, theory of computation, and information theory, 
+                            to applied disciplines including the design and implementation of 
+                            hardware and software12. Computer science focuses on the development 
+                            and testing of software and software systems, working with mathematical 
+                            models, data analysis and security, algorithms, and computational theory3. 
+                            Computer scientists define the computational principles that are the basis of all software3.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 card" style="padding: 0;margin-bottom: 100px;">
+                <img src="../static/img_1.png" alt="IT_photo" class="card-img-top" style="height: 300px;">
+                <div class="card-body">
+                    <h1 class="card-title text-center">IT Department</h1>
+                    <button data-target="#IT-description" class="btn btn-warning w-100" data-toggle="collapse">Read about Department</button>
+                    <div id="IT-description" class="collapse bg-warning p-4">
+                        <p>
+                            Information Technology (IT) refers to the use of computer systems,
+                            software, and networks to manage, process, protect, and exchange information12345
+                            . It encompasses a wide range of fields and specializations, and plays a crucial 
+                            role in various domains including business, education, and healthcare
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2"></div>
+            <div class="col-lg-5 card" style="padding: 0;margin-bottom: 100px;">
+                <img src="../static/img_2.png" alt="informationSystem-photo" class="card-img-top" style="height: 300px;">
+                <div class="card-body">
+                    <h1 class="card-title text-center">IS Department</h1>
+                    <button data-target="#IS_descripction" class="btn btn-warning w-100" data-toggle="collapse">Read about Department</button>
+                    <div id="IS_descripction" class="collapse bg-warning p-4">
+                        <p>
+                            Information is the output that results from analyzing, contextualizing, 
+                            structuring, interpreting or in other ways processing data. Information 
+                            infuses meaning and value into the data. It facilitates understanding, 
+                            communication and learning, and is a key factor in system designs and 
+                            strategic planning, as well as in problem-solving and decision-making. 
+                            Information brings context to the data, turning what would otherwise be 
+                            meaningless content into something comprehensible and usable.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="../js/Student-js/bootstrap_js/jquery-3.5.1.min.js"></script>
+    <script src="../js/Student-js/bootstrap_js/popper.min.js"></script>
+    <script src="../js/Student-js/bootstrap_js/bootstrap.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    background-color: #f9f9f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar {
+    background-color: #343a40;
+}
+
+#navbarNav {
+    justify-content: space-between;
+    margin-left: 400px;
+}
+
+#navbarNav ul li {
+    padding: 0 20px;
+    transition: 0.3s;
+    border-radius: 5px;
+}
+
+#navbarNav ul li:hover {
+    background-color: #007bff;
+}
+
+.navbar-brand,
+.nav-link {
+    color: white !important;
+}
+
+.btn-custom {
+    margin-left: 10px;
+    color: white !important;
+    background-color: #007bff;
+    transition: 0.3s;
+}
+
+.btn-custom:first-child {
+    background-color: #c9ab03;
+    box-shadow: 1px 1px white;
+    color: #eee;
+}
+
+.btn-custom:not(:first-child):hover {
+    background-color: #0056b3;
+}
+
+.btn-custom:first-child:hover {
+    background-color: #998202;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+.card {
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#Header {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+.card-body {
+    background-color: #f8f9fa;
+}
+
+.table th, 
+.table td {
+    text-align: center;
+}
+
+.table tbody:hover {
+    background-color: white;
+    cursor: no-drop;
+}
+
+.btn-password-toggle {
+    background-color: #6c757d;
+    color: white;
+}
+
+#passwordSection {
+    height: 20px;
+}
+
+.btn-password-toggle:hover {
+    background-color: #5a6268;
+}
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.9rem;
+    }
+}
