@@ -54,9 +54,9 @@ const validateInputs = async () => {
                 if (data.user.role === 'student') {
                     window.location.href = '../html/studentDashboard.html';
                 } else if (data.user.role === 'lecturer') {
-                    window.location.href = '../html/lecturerDashboard.html';
+                    window.location.href = '../../html/lecturer/lecturerDashboard.html';
                 } else if (data.user.role === 'admin') {
-                    window.location.href = '../html/adminDashboard.html';
+                    window.location.href = '../../html/admin/adminDashboard.html';
                 }
             } else {
                 alert(data.message || 'Invalid ID or Password');

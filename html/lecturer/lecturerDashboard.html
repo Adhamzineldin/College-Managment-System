@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Dashboard</title>
+    <link rel="stylesheet" href="../../css/lecturerDashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Sign-Out Button -->
+        <div class="text-end mb-4">
+            <button id="signOutButton" class="btn btn-danger">Sign Out</button>
+        </div>
+
+        <!-- Lecturer Dashboard Title -->
+        <h1 class="text-center">Lecturer Dashboard</h1>
+        <hr>
+
+        <!-- Assigned Subjects Section -->
+        <div id="assignedSubjectsSection" class="mt-4">
+            <h3>Your Assigned Subjects</h3>
+            <ul id="subjectsList" class="list-group"></ul>
+        </div>
+
+        <!-- Students Section -->
+        <div id="studentsSection" class="mt-4 d-none">
+            <h3>Students in <span id="selectedSubjectName"></span></h3>
+            <button id="backToSubjects" class="btn btn-secondary mb-3">Back to Subjects</button>
+            <ul id="studentsList" class="list-group"></ul>
+        </div>
+    </div>
+
+    <!-- Exam Management Modal -->
+    <div class="modal fade" id="examModal" tabindex="-1" aria-labelledby="examModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="examModalLabel">Add New Exam</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="examForm">
+                        <div class="mb-3">
+                            <label for="examTitle" class="form-label">Exam Title</label>
+                            <input type="text" class="form-control" id="examTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="examDescription" class="form-label">Exam Description</label>
+                            <textarea class="form-control" id="examDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="examQuestions" class="form-label">Questions</label>
+                            <textarea class="form-control" id="examQuestions" rows="5" required></textarea>
+                            <small class="form-text text-muted">Separate questions with a new line.</small>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="saveExamButton">Save Exam</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/lecturer/lecturerDashboard.js"></script>
+</body>
+</html>
