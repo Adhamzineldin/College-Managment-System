@@ -1,11 +1,5 @@
 // Sample data from the backend
-const studentData = {
-    email: "Adham@gmail.com",
-    id: "123456",
-    name: "Adham Zineldin",
-    role: "Student",
-    subjects: "Math, Science, Literature"
-};
+const studentData = JSON.parse(localStorage.getItem("currentUser"));
 
 // Populate table with data
 const profileData = document.getElementById("profileData");
@@ -19,17 +13,24 @@ profileData.innerHTML = `
     </tr>
 `;
 
+const updateCredentialsButton = document.getElementById('update-credentials');
+const modal = new bootstrap.Modal("updateCredentialsModal");
+
+updateCredentialsButton.addEventListener('click', ()=> {
+    modal.show();
+})
+
 // Change password function
-function changePassword() {
-    const currentPassword = document.getElementById("currentPassword").value;
-    const newPassword = document.getElementById("newPassword").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
+// function changePassword() {
+//     const currentPassword = document.getElementById("currentPassword").value;
+//     const newPassword = document.getElementById("newPassword").value;
+//     const confirmPassword = document.getElementById("confirmPassword").value;
 
-    if (newPassword !== confirmPassword) {
-        alert("New passwords do not match!");
-        return;
-    }
+//     if (newPassword !== confirmPassword) {
+//         alert("New passwords do not match!");
+//         return;
+//     }
 
-    alert("Password successfully changed!");
-    // Send password change request to the server
-}
+//     alert("Password successfully changed!");
+//     // Send password change request to the server
+// }

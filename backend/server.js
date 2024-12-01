@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 
 // Initialize SQLite database
-const db = new sqlite3.Database('./backend/users.db', (err) => {
+const db = new sqlite3.Database('users.db', (err) => {
     if (err) {
         console.error('Error connecting to SQLite:', err.message);
     } else {
