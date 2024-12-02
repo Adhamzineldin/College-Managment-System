@@ -109,18 +109,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (subjectId.length > 1) {
             currentSubjectId = subjectId;
             localStorage.setItem("currentSubjectId", subjectId);
-        }else{
+        } else {
             currentSubjectId = localStorage.getItem("currentSubjectId");
             subjectId = currentSubjectId;
         }
 
 
-
-
         if (subjectId.length > 1) {
             currentSubjectId = subjectId;
             localStorage.setItem("currentSubjectId", subjectId);
-        }else{
+        } else {
             currentSubjectId = localStorage.getItem("currentSubjectId");
         }
         try {
@@ -189,107 +187,106 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function openExamSection(examId = null, subjectId = null) {
-    currentExamId = examId;
+        currentExamId = examId;
 
-    // Check if an examId is provided
-    if (examId) {
-        try {
-            // Fetch exam data from backend
-            const response = await fetch(`${apiUrl}/exam/${examId}`);
-            const examData = await response.json();
-            console.log(examData); // Log to inspect data structure
+        // Check if an examId is provided
+        if (examId) {
+            try {
+                // Fetch exam data from backend
+                const response = await fetch(`${apiUrl}/exam/${examId}`);
+                const examData = await response.json();
+                console.log(examData); // Log to inspect data structure
 
-            // Check if examData and questions exist
-            if (examData && examData.questions) {
-                // Clear existing questions before populating new ones
-                document.getElementById("questionFields").innerHTML = "";
+                // Check if examData and questions exist
+                if (examData && examData.questions) {
+                    // Clear existing questions before populating new ones
+                    document.getElementById("questionFields").innerHTML = "";
 
-                // Render exam details dynamically
-                document.getElementById("examTitle").value = examData.name || ""; // Set Exam Title
-                document.getElementById("examDuration").value = examData.duration || ""; // Set Exam Duration
-                document.getElementById("examDate").value = examData.date || ""; // Set Exam Date
-                document.getElementById("examMarks").value = examData.total_marks || ""; // Set Exam Marks
+                    // Render exam details dynamically
+                    document.getElementById("examTitle").value = examData.name || ""; // Set Exam Title
+                    document.getElementById("examDuration").value = examData.duration || ""; // Set Exam Duration
+                    document.getElementById("examDate").value = examData.date || ""; // Set Exam Date
+                    document.getElementById("examMarks").value = examData.total_marks || ""; // Set Exam Marks
 
 
+                    // Loop through each question in examData.questions
+                    examData.questions.forEach((question, index) => {
+                        // Safely parse answers, handling possible data types
+                        let answers = [];
+                        if (examData.answers[index]) {
+                            if (typeof examData.answers[index] === "string") {
+                                answers = examData.answers[index].split(';'); // Parse string
+                            } else if (Array.isArray(examData.answers[index])) {
+                                answers = examData.answers[index]; // Use directly if it's an array
+                            } else {
+                                console.warn(`Unexpected data type for answers at index ${index}:`, examData.answers[index]);
+                            }
+                        }
 
-               // Loop through each question in examData.questions
-examData.questions.forEach((question, index) => {
-    // Safely parse answers, handling possible data types
-    let answers = [];
-    if (examData.answers[index]) {
-        if (typeof examData.answers[index] === "string") {
-            answers = examData.answers[index].split(';'); // Parse string
-        } else if (Array.isArray(examData.answers[index])) {
-            answers = examData.answers[index]; // Use directly if it's an array
-        } else {
-            console.warn(`Unexpected data type for answers at index ${index}:`, examData.answers[index]);
-        }
-    }
-
-    // Create the question block
-    const questionBlock = document.createElement("div");
-    questionBlock.classList.add("question-block", "mb-3");
-    questionBlock.innerHTML = `
-        <label for="question_${index + 1}" class="form-label">Question ${index + 1}</label>
-        <input type="text" class="form-control" id="question_${index + 1}" name="question_${index + 1}" value="${question.slice(1, -1) || ''}" required>
-        
-        <div class="answers-container mb-3" id="answers_${index + 1}">
-            <h5>Answers</h5>
-            ${answers.map((answer, ansIndex) => `
-                <div class="mb-2">
-                    <input type="text" class="form-control" name="answer_${index + 1}_${ansIndex + 1}" value="${answer}" placeholder="Answer ${ansIndex + 1}" required>
+                        // Create the question block
+                        const questionBlock = document.createElement("div");
+                        questionBlock.classList.add("question-block", "mb-3");
+                        questionBlock.innerHTML = `
+                <label for="question_${index + 1}" class="form-label">Question ${index + 1}</label>
+                <input type="text" class="form-control" id="question_${index + 1}" name="question_${index + 1}" value="${question.slice(1, -1) || ''}" required>
+                
+                <div class="answers-container mb-3" id="answers_${index + 1}">
+                    <h5>Answers</h5>
+                    ${answers.map((answer, ansIndex) => `
+                        <div class="mb-2">
+                            <input type="text" class="form-control" name="answer_${index + 1}_${ansIndex + 1}" value="${answer}" placeholder="Answer ${ansIndex + 1}" required>
+                        </div>
+                    `).join('')}
+                    <button type="button" class="btn btn-info addAnswerButton" data-question-id="${index + 1}">Add Answer</button>
                 </div>
-            `).join('')}
-            <button type="button" class="btn btn-info addAnswerButton" data-question-id="${index + 1}">Add Answer</button>
-        </div>
-    `;
+            `;
 
-    // Append the question block to the question fields container
-    document.getElementById("questionFields").appendChild(questionBlock);
+                        // Append the question block to the question fields container
+                        document.getElementById("questionFields").appendChild(questionBlock);
 
-    // Add event listener to the 'Add Answer' button for this question
-    document.querySelector(`#answers_${index + 1} .addAnswerButton`).addEventListener("click", function () {
-        const questionId = this.getAttribute("data-question-id");
-        const answerCount = document.querySelectorAll(`#answers_${questionId} input[type="text"]`).length + 1;
+                        // Add event listener to the 'Add Answer' button for this question
+                        document.querySelector(`#answers_${index + 1} .addAnswerButton`).addEventListener("click", function () {
+                            const questionId = this.getAttribute("data-question-id");
+                            const answerCount = document.querySelectorAll(`#answers_${questionId} input[type="text"]`).length + 1;
 
-        // Create a new input field for the answer
-        const answerInput = document.createElement("div");
-        answerInput.classList.add("mb-2");
-        answerInput.innerHTML = `
+                            // Create a new input field for the answer
+                            const answerInput = document.createElement("div");
+                            answerInput.classList.add("mb-2");
+                            answerInput.innerHTML = `
             <input type="text" class="form-control" name="answer_${questionId}_${answerCount}" placeholder="Answer ${answerCount}" required>
         `;
 
-        // Append the new answer input to the answers container
-        document.getElementById(`answers_${questionId}`).appendChild(answerInput);
-    });
-});
+                            // Append the new answer input to the answers container
+                            document.getElementById(`answers_${questionId}`).appendChild(answerInput);
+                        });
+                    });
 
-            } else {
-                console.error("Invalid exam data: Questions are missing.");
+                } else {
+                    console.error("Invalid exam data: Questions are missing.");
+                }
+            } catch (error) {
+                console.error("Failed to fetch exam data:", error);
             }
-        } catch (error) {
-            console.error("Failed to fetch exam data:", error);
+        } else {
+            // If no examId is provided, reset the form and set the title and button
+            examForm.reset();
+            document.getElementById("examTitle").value = ""; // Clear Exam Title
+            document.getElementById("examDuration").value = ""; // Clear Exam Duration
+            document.getElementById("examDate").value = ""; // Clear Exam Date
+            document.getElementById("examMarks").value = ""; // Clear Exam Marks
+            document.getElementById("examSectionTitle").textContent = "Add Exam";
+            saveExamButton.textContent = "Save Exam";
         }
-    } else {
-        // If no examId is provided, reset the form and set the title and button
-        examForm.reset();
-        document.getElementById("examTitle").value = ""; // Clear Exam Title
-        document.getElementById("examDuration").value = ""; // Clear Exam Duration
-        document.getElementById("examDate").value = ""; // Clear Exam Date
-        document.getElementById("examMarks").value = ""; // Clear Exam Marks
-        document.getElementById("examSectionTitle").textContent = "Add Exam";
-        saveExamButton.textContent = "Save Exam";
-    }
 
-    // Pre-fill subject ID if provided
-    if (subjectId) {
-        document.getElementById("subjectId").value = subjectId;
-    }
+        // Pre-fill subject ID if provided
+        if (subjectId) {
+            document.getElementById("subjectId").value = subjectId;
+        }
 
-    // Show the exam section and hide the exam list
-    document.getElementById("examsList").classList.add("d-none");
-    document.getElementById("examSection").classList.remove("d-none");
-}
+        // Show the exam section and hide the exam list
+        document.getElementById("examsList").classList.add("d-none");
+        document.getElementById("examSection").classList.remove("d-none");
+    }
 
 
     async function fetchExamById(examId) {
@@ -310,72 +307,72 @@ examData.questions.forEach((question, index) => {
     }
 
     saveExamButton.addEventListener("click", async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    // Collect the exam data
-    const examData = {
-        name: document.getElementById("examTitle").value,
-        duration: document.getElementById("examDuration").value,
-        date: document.getElementById("examDate").value,
-        total_marks: document.getElementById("examMarks").value,
-        subject_id: currentSubjectId,
-    };
+        // Collect the exam data
+        const examData = {
+            name: document.getElementById("examTitle").value,
+            duration: document.getElementById("examDuration").value,
+            date: document.getElementById("examDate").value,
+            total_marks: document.getElementById("examMarks").value,
+            subject_id: currentSubjectId,
+        };
 
-    // Collect the questions and answers
-    const questionsArr = [];
-    const answersArr = [];
-    const questionBlocks = document.querySelectorAll(".question-block");
+        // Collect the questions and answers
+        const questionsArr = [];
+        const answersArr = [];
+        const questionBlocks = document.querySelectorAll(".question-block");
 
-    questionBlocks.forEach((block, index) => {
-        const questionText = block.querySelector(`input[name="question_${index + 1}"]`).value;
-        const answers = [];
-        const answerInputs = block.querySelectorAll(`#answers_${index + 1} input[type="text"]`);
+        questionBlocks.forEach((block, index) => {
+            const questionText = block.querySelector(`input[name="question_${index + 1}"]`).value;
+            const answers = [];
+            const answerInputs = block.querySelectorAll(`#answers_${index + 1} input[type="text"]`);
 
-        answerInputs.forEach(input => {
-            answers.push(input.value);
+            answerInputs.forEach(input => {
+                answers.push(input.value);
+            });
+
+            // Join answers with ";" and wrap them in "{}"
+            answersArr.push(`{${answers.join(";")}}`);
+            // Wrap the question in "{}" and add it to questionsArr
+            questionsArr.push(`{${questionText}}`);
         });
 
-        // Join answers with ";" and wrap them in "{}"
-        answersArr.push(`{${answers.join(";")}}`);
-        // Wrap the question in "{}" and add it to questionsArr
-        questionsArr.push(`{${questionText}}`);
-    });
+        // Join questions and answers with ";" and store them as single strings
+        const questionsString = questionsArr.join(";");
+        const answersString = answersArr.join(";");
 
-    // Join questions and answers with ";" and store them as single strings
-    const questionsString = questionsArr.join(";");
-    const answersString = answersArr.join(";");
+        examData.questions = questionsString;
+        examData.answers = answersString;
 
-    examData.questions = questionsString;
-    examData.answers = answersString;
+        try {
+            if (currentExamId) {
+                // If editing an existing exam
+                await fetch(`${apiUrl}/exam/${currentExamId}`, {
+                    method: "PUT",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(examData),
+                });
+                alert("Exam updated successfully!");
+            } else {
+                // If adding a new exam
+                await fetch(`${apiUrl}/exam`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(examData),
+                });
+                alert("Exam added successfully!");
+            }
 
-    try {
-        if (currentExamId) {
-            // If editing an existing exam
-            await fetch(`${apiUrl}/exam/${currentExamId}`, {
-                method: "PUT",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(examData),
-            });
-            alert("Exam updated successfully!");
-        } else {
-            // If adding a new exam
-            await fetch(`${apiUrl}/exam`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(examData),
-            });
-            alert("Exam added successfully!");
+            // Fetch and display the exams list
+            await fetchExamsBySubject(currentSubjectId);
+            document.getElementById("examsList").classList.remove("d-none");
+            document.getElementById("examSection").classList.add("d-none");
+            currentExamId = null;
+        } catch (error) {
+            console.error("Error saving exam:", error);
         }
-
-        // Fetch and display the exams list
-        await fetchExamsBySubject(currentSubjectId);
-        document.getElementById("examsList").classList.remove("d-none");
-        document.getElementById("examSection").classList.add("d-none");
-        currentExamId = null;
-    } catch (error) {
-        console.error("Error saving exam:", error);
-    }
-});
+    });
 
 
     async function deleteExam(examId) {
