@@ -110,6 +110,10 @@ body {
         font-size: 0.9rem;
     }
 
+    .table td:last-child {
+        font-size: 8px;
+    }
+
     .navbar-nav {
         text-align: center;
     }
