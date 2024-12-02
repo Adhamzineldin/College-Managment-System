@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="/static/admin/img_2.png" type="image/x-icon">
+    <link rel="shortcut icon" href="../../static/admin/img_2.png" type="image/x-icon">
     <title>Student Exam</title>
 
     <!-- Bootstrap CSS -->
@@ -15,10 +15,13 @@
 
 </head>
 
-<body>
+<body>  
     <nav>
+        <button class="go-back" onclick="goBack()">
+            Go Back
+        </button>
         <div class="headline">
-            <h1><a href="Std_Profile.html">GO BACK EXAM WILL BE LOST IF NOT SUBMITTED</a></h1>
+            <h1><span class="warning-label">Warning!</span> Exam Will Be Lost if Not Submitted</h1>
         </div>
     </nav>
 

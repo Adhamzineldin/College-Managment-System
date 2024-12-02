@@ -1,0 +1,52 @@
+nav {
+    background-color: #1e88e5; 
+}
+
+.go-back {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 10px;
+    transition: 0.3s;
+}
+
+.go-back:hover {
+    background-color: #ffffff33;
+}
+
+.go-back::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 10px solid white;
+    margin-right: 5px;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.subject-container {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.exam-item {
+    margin-bottom: 15px;
+}
+.btn-enter, .btn-grade {
+    width: 100%;
+}

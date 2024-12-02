@@ -1,3 +1,9 @@
+// Return back to Std_View_Exams.html
+const goBack = () => {
+    window.location.href='./Std_View_Exams.html';
+}
+
+
 const apiUrl = "http://localhost:5000/api";
 let timerInterval;
 
@@ -140,7 +146,6 @@ async function submitExam(examId, questions, studentId) {
 // Initialize exam with example values
 const examId =  localStorage.getItem("examId");
 const studentId =  JSON.parse(localStorage.getItem("currentUser")).id;
-
 
 
 fetchExam(examId, studentId);
