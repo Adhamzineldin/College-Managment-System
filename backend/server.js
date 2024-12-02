@@ -27,7 +27,7 @@ const db = new sqlite3.Database('./backend/users.db', (err) => {
                 password TEXT NOT NULL,
                 role TEXT NOT NULL,
                 subjects TEXT NOT NULL, -- Store subject IDs as a JSON string
-                finalGrade REAL NOT NULL -- Store final grade as a numeric value
+                finalGrade REAL NOT NULL 
             )`,
             (err) => {
                 if (err) {
@@ -63,6 +63,8 @@ const db = new sqlite3.Database('./backend/users.db', (err) => {
                 total_marks INTEGER NOT NULL,
                 questions TEXT,
                 answers TEXT,
+                entredID TEXT,
+                grades TEXT,
                 FOREIGN KEY (subject_id) REFERENCES subjects(id)
             )`, (err) => {
                 if (err) {
@@ -568,17 +570,17 @@ app.get('/api/exam/:id', (req, res) => {
 // Update an exam route
 app.put('/api/exam/:id', (req, res) => {
     const examId = req.params.id;
-    const { subject_id, name, date, duration, total_marks, questions, answers } = req.body;
+    const { subject_id, name, date, duration, total_marks, questions, answers, entredID, grades } = req.body;
 
     // if (!subject_id || !name || !date || !duration || !total_marks || !questions || !answers) {
     //     return res.status(400).json({ message: 'All fields are required.' });
     // }
 
-    const query = `UPDATE exams SET subject_id = ?, name = ?, date = ?, duration = ?, total_marks = ?, questions = ?, answers = ? WHERE id = ?`;
+    const query = `UPDATE exams SET subject_id = ?, name = ?, date = ?, duration = ?, total_marks = ?, questions = ?, answers = ?, entredID = ?, grades = ?  WHERE id = ?`;
 
     db.run(
         query,
-        [subject_id, name, date, duration, total_marks, questions, answers, examId],
+        [subject_id, name, date, duration, total_marks, questions, answers, entredID, grades, examId],
         function (err) {
             if (err) {
                 console.error('Error updating exam:', err.message);
