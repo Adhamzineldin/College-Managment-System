@@ -30,36 +30,15 @@
             <button id="backToSubjects" class="btn btn-secondary mb-3">Back to Subjects</button>
             <ul id="studentsList" class="list-group"></ul>
         </div>
-    </div>
 
-    <!-- Exam Management Modal -->
-    <div class="modal fade" id="examModal" tabindex="-1" aria-labelledby="examModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="examModalLabel">Add New Exam</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="examForm">
-                        <div class="mb-3">
-                            <label for="examTitle" class="form-label">Exam Title</label>
-                            <input type="text" class="form-control" id="examTitle" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="examDescription" class="form-label">Exam Description</label>
-                            <textarea class="form-control" id="examDescription" rows="3" required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="examQuestions" class="form-label">Questions</label>
-                            <textarea class="form-control" id="examQuestions" rows="5" required></textarea>
-                            <small class="form-text text-muted">Separate questions with a new line.</small>
-                        </div>
-                        <button type="button" class="btn btn-primary" id="saveExamButton">Save Exam</button>
-                    </form>
-                </div>
-            </div>
+        <!-- Lecturer Exams Section -->
+        <div id="lecturerExamsSection" class="mt-4 d-none">
+            <h3>Exams for <span id="examSubjectName"></span></h3>
+            <button id="backToSubjectDetails" class="btn btn-secondary mb-3">Back to Subject Details</button>
+            <ul id="examsList" class="list-group"></ul>
+            <button id="addExamButton" class="btn btn-primary mt-3">Add New Exam</button>
         </div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>

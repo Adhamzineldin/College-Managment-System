@@ -52,7 +52,7 @@ const validateInputs = async () => {
                 localStorage.setItem('currentUser', JSON.stringify(data.user));
 
                 if (data.user.role === 'student') {
-                    window.location.href = '../html/studentDashboard.html';
+                    window.location.href = '../../html/student/Std_Profile.html';
                 } else if (data.user.role === 'lecturer') {
                     window.location.href = '../../html/lecturer/lecturerDashboard.html';
                 } else if (data.user.role === 'admin') {

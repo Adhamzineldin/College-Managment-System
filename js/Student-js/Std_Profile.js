@@ -14,7 +14,7 @@ profileData.innerHTML = `
 `;
 
 const updateCredentialsButton = document.getElementById('update-credentials');
-const modal = new bootstrap.Modal("updateCredentialsModal");
+const modal = new bootstrap.Modal(document.getElementById('updateCredentialsModal'));
 
 updateCredentialsButton.addEventListener('click', ()=> {
     modal.show();

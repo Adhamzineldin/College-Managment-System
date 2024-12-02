@@ -74,7 +74,7 @@ body {
     background-color: #f8f9fa;
 }
 
-.table th, 
+.table th,
 .table td {
     text-align: center;
 }
@@ -102,3 +102,8 @@ body {
         font-size: 0.9rem;
     }
 }
+ iframe {
+        width: 100%;
+
+        border: none;
+    }
