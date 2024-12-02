@@ -1,28 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/Std_Exam.css">
     <link rel="shortcut icon" href="/static/admin/img_2.png" type="image/x-icon">
     <title>Student Exam</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../css/Student-CSS/Std_Exam.css">
+
 </head>
+
 <body>
     <nav>
         <div class="headline">
-            <img width="35" height="35" src="Pictures/Website-Logo.jpeg" alt="">
-            <h1><a href="Std_Exam.html">Exam Site</a></h1>
+            <h1><a href="Std_Profile.html">GO BACK EXAM WILL BE LOST IF NOT SUBMITTED</a></h1>
         </div>
     </nav>
 
-
-    <div class="container">
-        <div class="exams">
-            
-        </div>
+    <div id="exam-container" class="container">
+        <h2 id="exam-title">Loading Exam...</h2>
+        <div id="questions-container"></div>
+        <div id="timer" class="text-danger"></div>
+        <button id="submit-exam" class="btn btn-success">Submit</button>
     </div>
 
-
-    <script src="js/Std_Exam.js"></script>
+    <!-- Bootstrap JS Bundle (Optional for Modal and Other Interactivity) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/Student-js/Std_Exam.js"></script>
 </body>
+
 </html>

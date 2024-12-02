@@ -610,6 +610,43 @@ app.delete('/api/exam/:id', (req, res) => {
 });
 
 
+app.put('/api/exam/:id/add-student', (req, res) => {
+    const examId = req.params.id;
+    const { studentId } = req.body;
+
+    const query = `UPDATE exams SET entredID = COALESCE(entredID, '') || ? WHERE id = ?`;
+    const newEntry = `{${studentId}};`; // Append new student
+
+    db.run(query, [newEntry, examId], function (err) {
+        if (err) {
+            console.error('Error adding student to exam:', err.message);
+            return res.status(500).json({ message: 'Error adding student.' });
+        }
+        return res.status(200).json({ message: 'Student added successfully.' });
+    });
+});
+
+
+
+
+app.post('/api/exam/:id/submit', (req, res) => {
+    const examId = req.params.id;
+    const { studentId, answers, grade } = req.body;
+
+    const query = `UPDATE exams SET grades = COALESCE(grades, '') || ? WHERE id = ?`;
+    const gradeEntry = `{${studentId}: ${grade}};`; // Add student grade
+
+    db.run(query, [gradeEntry, examId], (err) => {
+        if (err) {
+            console.error('Error submitting exam:', err.message);
+            return res.status(500).json({ message: 'Error submitting exam.' });
+        }
+        return res.status(200).json({ message: 'Exam submitted successfully.' });
+    });
+});
+
+
+
 
 // Authentication route
 app.post('/api/authenticate', (req, res) => {

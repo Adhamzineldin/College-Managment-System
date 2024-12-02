@@ -1,123 +1,144 @@
-/* var for check entered */
-localStorage.setItem("entered",false);
+const apiUrl = "http://localhost:5000/api";
+let timerInterval;
 
-/* exam */
-    
-    let exam = JSON.parse(localStorage.exam);
-    /* array for shiffling question */
-    let shiffling = [];
-
-    /* insert index */
-    for (let i=0;i < exam.length;i++){
-        shiffling[i] = i; 
-    }
-
-    /* shiffling question */
-    for (let i=0;i < shiffling.length;i++){
-        /* generate random number */
-        let j = Math.floor(Math.random() * shiffling.length);
-        console.log(j);
-
-        /* swap questions */
-        let temp = shiffling[i];
-        shiffling[i] = shiffling[j];
-        shiffling[j] = temp;
-    }
-
-    /* show questions after shiffling */
-    for (let i=0;i < shiffling.length;i++){
-        let q = document.createElement('div');
-        q.className = 'question';
-        q.innerHTML = `
-                <div class="questionText" style="background-color: rgb(0, 255, 0);padding: 15px; font-size: 24px;border-bottom: 4px solid black;">
-                    ${exam[shiffling[i]].questionText}
-                </div>
-                <div class="answers" style="display: flex;flex-direction: column;gap: 10px;font-size: 22px;padding: 20px;">
-                    <label for="question${i+1}_1">
-                        <input id="question${i+1}_1" value="${exam[shiffling[i]].questionanswer1}" name="question${i+1}" type="radio">
-                            ${exam[shiffling[i]].questionanswer1}
-                    </label>
-                    <label for="question${i+1}_2">
-                        <input id="question${i+1}_2" value="${exam[shiffling[i]].questionanswer2}" name="question${i+1}" type="radio">
-                            ${exam[shiffling[i]].questionanswer2}
-                    </label>
-                    <label>
-                        <input id="question${i+1}_3" value="${exam[shiffling[i]].questionanswer3}" name="question${i+1}" type="radio">
-                        ${exam[shiffling[i]].questionanswer3}
-                    </label>
-                    <label>
-                        <input id="question${i+1}_4" value="${exam[shiffling[i]].questionanswer4}" name="question${i+1}" type="radio">
-                        ${exam[shiffling[i]].questionanswer4}
-                    </label>
-                </div>`    
-
-        /* add to html file */
-        document.querySelector(".exams").appendChild(q);
-    }
-
-    /* add submit buttom */
-    let btn = document.createElement('button');
-    btn.className = 'submit';
-    let btn_text = document.createTextNode('Submit Answers');
-    btn.appendChild(btn_text);
-    btn.style.width = "10%";
-    btn.style.height = "40px";
-    btn.style.margin = "20px 45% 0 45%";
-    btn.style.borderRadius = "5px";
-    btn.style.backgroundColor = 'rgb(0, 255, 0)';
-    btn.addEventListener("mouseover",function (){
-        btn.style.backgroundColor = 'red';
-        btn.style.color = 'white';
-        btn.style.cursor = 'pointer';
-    });
-    btn.addEventListener("mouseout",function (){
-        btn.style.backgroundColor = '#00ff3c';
-        btn.style.color = 'black';
-        btn.style.cursor = 'none';
-    });
-    document.querySelector(".exams").appendChild(btn);
-
-
-setTimeout(() => {
-    localStorage.entered = true;
-
-    /* store student answer */
-    let studentIndex = localStorage.studentIndex;
-    let studentDegree = [JSON.parse(localStorage.students)[studentIndex].name];
-    let questions = document.querySelectorAll(".question");    
-    questions.forEach((ele,index) => {
-        const radios = ele.querySelectorAll(`input[name="question${index+1}"]`);
-        for (const radio of radios){
-            if (radio.checked){
-                studentDegree.push({questionsIndex: shiffling[index],answer: radio.value});
-            }
+// Fetch and render the exam with the student ID
+async function fetchExam(examId, studentId) {
+    try {
+        const response = await fetch(`${apiUrl}/exam/${examId}`);
+        let examData = await response.json();
+        console.log(examData);
+        // Check if the student has already entered the exam
+        const enteredIds = examData.entredID.split(";").map(id => id.slice(1, -1));
+        if (enteredIds.includes(studentId)) {
+            alert("You have already entered this exam.");
+            window.location.href = "STD_Profile.html"; // Redirect to profile if already entered
+            return;
         }
-    });
 
-    localStorage.setItem('studentDegree',JSON.stringify(studentDegree));
+        // Set exam title
+        document.getElementById("exam-title").textContent = examData.name;
 
-    location.href = 'Std_Profile.html';
+        // Render questions
+        const questionsContainer = document.getElementById("questions-container");
+        questionsContainer.innerHTML = ""; // Clear existing questions
 
-}, 10000);
+        examData.questions.forEach((question, index) => {
+            const questionBlock = document.createElement("div");
+            questionBlock.className = "mb-3";
 
-/* on click submit */
-document.querySelector(".submit").addEventListener("click",function (){
-    localStorage.entered = true;
+            questionBlock.innerHTML = `
+                <p><strong>Question ${index + 1}:</strong> ${question.slice(1, -1)}</p>
+                <textarea class="form-control" id="answer_${index}" placeholder="Your answer" rows="3"></textarea>
+            `;
 
-    /* store student answer */
-    let studentIndex = localStorage.studentIndex;
-    let studentDegree = [{name: JSON.parse(localStorage.students)[studentIndex].name}];
-    let questions = document.querySelectorAll(".question");    
-    questions.forEach((ele,index) => {
-        const radios = ele.querySelectorAll(`input[name="question${index+1}"]`);
-        for (const radio of radios){
-            if (radio.checked){
-                studentDegree.push({questionsIndex: shiffling[index],answer: radio.value});
-            }
+            questionsContainer.appendChild(questionBlock);
+        });
+
+        // Add student to the list of participants
+        await addStudentToExam(examId, studentId);
+
+        // Start the timer
+        startTimer(examData.duration);
+
+        // Submit event
+        document.getElementById("submit-exam").onclick = () => submitExam(examId, examData.questions, studentId);
+    } catch (error) {
+        console.error("Error fetching exam:", error.message);
+    }
+}
+
+// Timer function
+function startTimer(duration) {
+    const timerElement = document.getElementById("timer");
+    let remainingTime = duration * 60; // Convert minutes to seconds
+
+    timerInterval = setInterval(() => {
+        const minutes = Math.floor(remainingTime / 60);
+        const seconds = remainingTime % 60;
+        timerElement.textContent = `Time Left: ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+
+        if (remainingTime <= 0) {
+            clearInterval(timerInterval);
+            alert("Time is up! Submitting your exam.");
+            document.getElementById("submit-exam").click(); // Auto-submit when time expires
         }
-    });
 
-    localStorage.setItem('studentDegree',JSON.stringify(studentDegree));
+        remainingTime--;
+    }, 1000);
+}
 
-    location.href = 'Std_Profile.html';
-});
+// Add student to exam participants
+async function addStudentToExam(examId, studentId) {
+    try {
+        const response = await fetch(`${apiUrl}/exam/${examId}/add-student`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ studentId }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to add student:", errorData.message);
+            alert("Error adding you to the exam. Please try again.");
+        }
+    } catch (error) {
+        console.error("Error adding student to exam:", error.message);
+        alert("Network error. Please try again later.");
+    }
+}
+
+// Submit exam answers
+async function submitExam(examId, questions, studentId) {
+    clearInterval(timerInterval); // Stop the timer
+
+    const answers = questions.map((_, index) => ({
+        question: questions[index],
+        answer: document.getElementById(`answer_${index}`).value.trim(),
+    }));
+
+    try {
+        // Fetch the exam data to get the model answers
+        const examResponse = await fetch(`${apiUrl}/exam/${examId}`);
+        const examData = await examResponse.json();
+        const modelAnswers = examData.answers; // Assuming `answers` contains the correct answers
+
+        if (!modelAnswers || modelAnswers.length !== questions.length) {
+            alert("Error: Model answers are missing or mismatched.");
+            return;
+        }
+
+        // Calculate grade
+        let grade = 0;
+        answers.forEach((ans, index) => {
+            if (ans.answer.toLowerCase() === modelAnswers[index][0].toLowerCase()) {
+                grade += 100 / questions.length; // Divide total score by the number of questions
+            }
+        });
+
+        // Send the submission with the calculated grade
+        const response = await fetch(`${apiUrl}/exam/${examId}/submit`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ studentId, answers, grade: Math.round(grade) }),
+        });
+
+        if (response.ok) {
+            alert("Exam submitted successfully! Your grade: " + Math.round(grade));
+            window.location.href = "STD_Profile.html"; // Redirect back to the profile page
+        } else {
+            const errorData = await response.json();
+            console.error("Submission failed:", errorData.message);
+            alert("There was an error submitting your exam. Please try again.");
+        }
+    } catch (error) {
+        console.error("Error submitting exam:", error.message);
+        alert("Network error. Please try again later.");
+    }
+}
+
+// Initialize exam with example values
+const examId = localStorage.getItem("examId") || "05319038";
+const studentId =  JSON.parse(localStorage.getItem("currentUser")).id;
+
+
+fetchExam(examId, studentId);

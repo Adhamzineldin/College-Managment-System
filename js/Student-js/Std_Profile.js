@@ -7,8 +7,7 @@ profileData.innerHTML = `
     <tr>
         <td>${studentData.email}</td>
         <td>${studentData.id}</td>
-        <td>${studentData.name}</td>
-        <td>${studentData.role}</td>
+        <td>${studentData.name}</td> 
         <td>${studentData.subjects}</td>
     </tr>
 `;
