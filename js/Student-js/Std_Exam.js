@@ -7,8 +7,9 @@ async function fetchExam(examId, studentId) {
         const response = await fetch(`${apiUrl}/exam/${examId}`);
         let examData = await response.json();
         console.log(examData);
+
         // Check if the student has already entered the exam
-        const enteredIds = examData.entredID.split(";").map(id => id.slice(1, -1));
+        const enteredIds = examData.entredID ? examData.entredID.split(";").map(id => id.slice(1, -1)) : [];
         if (enteredIds.includes(studentId)) {
             alert("You have already entered this exam.");
             window.location.href = "STD_Profile.html"; // Redirect to profile if already entered
@@ -137,8 +138,9 @@ async function submitExam(examId, questions, studentId) {
 }
 
 // Initialize exam with example values
-const examId = localStorage.getItem("examId") || "05319038";
+const examId =  localStorage.getItem("examId");
 const studentId =  JSON.parse(localStorage.getItem("currentUser")).id;
+
 
 
 fetchExam(examId, studentId);

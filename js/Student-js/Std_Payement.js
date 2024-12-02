@@ -1,6 +1,6 @@
 /* go back to Std_profile */
 const goBack = () => {
-    window.location.href = '/html/student/Std_Profile.html'
+    window.location.href = './Std_Profile.html'
 }
 
 /* Reset Button */
