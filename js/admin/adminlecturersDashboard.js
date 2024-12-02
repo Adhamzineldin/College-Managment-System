@@ -13,10 +13,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentLecturerIndex = -1;
     let subjects = [];
 
+    const apiUrl = window.location.hostname === "localhost"
+  ? "http://localhost:5000"  // Local development
+  : "https://app5000.maayn.me";
+
     // Fetch subjects from backend
     const fetchSubjects = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/subjects");
+            const response = await fetch(`${apiUrl}/api/subjects`);
             const data = await response.json();
             if (data.subjects) {
                 subjects = data.subjects;
@@ -54,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch and render all lecturers from the backend
     const fetchLecturers = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/lecturers");
+            const response = await fetch(`${apiUrl}/api/lecturers`);
             const data = await response.json();
             if (data.lecturers) {
                 renderLecturers(data.lecturers);
@@ -62,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.error("Error fetching lecturers:", error);
         }
+        
     };
 
     // Render lecturer list
@@ -89,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const openModal = async (lecturerId = null) => {
         if (lecturerId) {
             try {
-                const response = await fetch(`http://localhost:5000/api/lecturer/${lecturerId}`);
+                const response = await fetch(`${apiUrl}/api/lecturer/${lecturerId}`);
                 const lecturer = await response.json();
 
                 if (lecturer) {
@@ -146,8 +151,8 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const method = currentLecturerIndex === -1 ? "POST" : "PUT";
             const url = currentLecturerIndex === -1
-                ? "http://localhost:5000/api/add-user"
-                : `http://localhost:5000/api/lecturer/${currentLecturerIndex}`;
+                ? `${apiUrl}/api/add-user`
+                : `${apiUrl}/api/lecturer/${currentLecturerIndex}`;
 
             const response = await fetch(url, {
                 method,
@@ -199,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const confirmed = confirm("Are you sure you want to delete this lecturer?");
         if (confirmed) {
             try {
-                const response = await fetch(`http://localhost:5000/api/lecturer/${lecturerId}`, {
+                const response = await fetch(`${apiUrl}/api/lecturer/${lecturerId}`, {
                     method: "DELETE"
                 });
                 const result = await response.json();
@@ -217,4 +222,5 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial data fetch
     fetchSubjects();  // Fetch subjects
     fetchLecturers();  // Fetch lecturers
+
 });

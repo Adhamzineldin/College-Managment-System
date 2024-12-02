@@ -1,5 +1,11 @@
+
+const apiUrl = window.location.hostname === "localhost"
+  ? "http://localhost:5000"  // Local development
+  : "https://app5000.maayn.me";
 document.getElementById("updateForm").addEventListener("submit", async function (event) {
     event.preventDefault();
+
+
 
     // Get current user details from localStorage
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -29,7 +35,7 @@ document.getElementById("updateForm").addEventListener("submit", async function 
 
     try {
         // Make PUT request to update user data on the backend
-        const response = await fetch(`http://localhost:5000/api/updateUser/${currentUser.id}`, {
+        const response = await fetch(`${apiUrl}/api/updateUser/${currentUser.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

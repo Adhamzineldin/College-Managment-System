@@ -5,7 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const subjectNameInput = document.getElementById('subject-name');
     const saveSubjectButton = document.getElementById('save-subject');
     let currentSubjectId = null;
-    const baseUrl = 'http://localhost:5000';
+    const baseUrl   = window.location.hostname === "localhost"
+  ? "http://localhost:5000"  // Local development
+  : "https://app5000.maayn.me";
 
     // Initialize Bootstrap modal
     const subjectModal = new bootstrap.Modal(document.getElementById('subjectModal'));

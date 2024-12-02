@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const apiUrl = "http://localhost:5000/api";
+    const apiUrl = window.location.hostname === "localhost"
+  ? "http://localhost:5000"  // Local development
+  : "https://app5000.maayn.me";
     const examsList = document.getElementById("examsList");
     const addExamButton = document.getElementById("addExamButton");
     const examSection = document.getElementById("examSection");
@@ -23,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch exams
     async function fetchExams() {
         try {
-            const response = await fetch(`${apiUrl}/exams`);
+            const response = await fetch(`${apiUrl}/api/exams`);
             const data = await response.json();
             examsList.innerHTML = "";
             data.exams.forEach(exam => {
@@ -70,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch exam by ID
     async function fetchExamById(examId) {
         try {
-            const response = await fetch(`${apiUrl}/exam/${examId}`);
+            const response = await fetch(`${apiUrl}/api/exam/${examId}`);
             const exam = await response.json();
             document.getElementById("examTitle").value = exam.name;
             document.getElementById("examDuration").value = exam.duration;
@@ -187,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             if (currentExamId) {
                 // Update exam
-                await fetch(`${apiUrl}/exam/${currentExamId}`, {
+                await fetch(`${apiUrl}/api/exam/${currentExamId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(examData)
@@ -195,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Exam updated successfully!");
             } else {
                 // Add new exam
-                await fetch(`${apiUrl}/exam`, {
+                await fetch(`${apiUrl}/api/exam`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(examData)
@@ -213,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function deleteExam(examId) {
         if (confirm("Are you sure you want to delete this exam?")) {
             try {
-                await fetch(`${apiUrl}/exam/${examId}`, { method: "DELETE" });
+                await fetch(`${apiUrl}/api/exam/${examId}`, { method: "DELETE" });
                 alert("Exam deleted successfully!");
                 fetchExams();
             } catch (error) {

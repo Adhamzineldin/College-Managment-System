@@ -11,6 +11,10 @@ form.addEventListener('submit', async (e) => {
     await validateInputs();
 });
 
+const apiUrl = window.location.hostname === "localhost"
+  ? "http://localhost:5000"  // Local development
+  : "https://app5000.maayn.me";
+
 const validateInputs = async () => {
     const idValue = id.value.trim();
     const passwordValue = password.value.trim();
@@ -38,7 +42,8 @@ const validateInputs = async () => {
 
     if (valid) {
         try {
-            const response = await fetch('http://localhost:5000/api/authenticate', {
+
+            const response = await fetch(`${apiUrl}/api/authenticate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
