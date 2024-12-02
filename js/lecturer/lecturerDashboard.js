@@ -39,50 +39,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Populate assigned subjects
-   function populateSubjects(subjects) {
-    subjectsList.innerHTML = "";
-    subjects.forEach(subjectId => {
-        const li = document.createElement("li");
-        li.className = "list-group-item d-flex justify-content-between align-items-center";
+    function populateSubjects(subjects) {
+        subjectsList.innerHTML = "";
+        subjects.forEach(subjectId => {
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
 
-        // Fetch the subject name
-        fetch(`${apiUrl}/subject/${subjectId}`)
-            .then(response => response.json())
-            .then(data => {
-                const subjectName = data.name;
-                li.textContent = subjectName;
+            // Fetch the subject name
+            fetch(`${apiUrl}/subject/${subjectId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const subjectName = data.name;
+                    li.textContent = subjectName;
 
-                // Create a button container
-                const buttonContainer = document.createElement("div");
-                buttonContainer.className = "d-flex align-items-center";
+                    // Create a button container
+                    const buttonContainer = document.createElement("div");
+                    buttonContainer.className = "d-flex align-items-center";
 
-                // Create 'View Students' button
-                const viewStudentsBtn = document.createElement("button");
-                viewStudentsBtn.textContent = "View Students";
-                viewStudentsBtn.className = "btn btn-primary btn-sm me-2";
-                viewStudentsBtn.addEventListener("click", () => fetchStudentsBySubject(subjectId));
+                    // Create 'View Students' button
+                    const viewStudentsBtn = document.createElement("button");
+                    viewStudentsBtn.textContent = "View Students";
+                    viewStudentsBtn.className = "btn btn-primary btn-sm me-2";
+                    viewStudentsBtn.addEventListener("click", () => fetchStudentsBySubject(subjectId));
 
-                // Create 'View Exams' button
-                const viewExamsBtn = document.createElement("button");
-                viewExamsBtn.textContent = "View Exams";
-                viewExamsBtn.className = "btn btn-success btn-sm";
-                viewExamsBtn.addEventListener("click", () => fetchExamsBySubject(subjectId));
+                    // Create 'View Exams' button
+                    const viewExamsBtn = document.createElement("button");
+                    viewExamsBtn.textContent = "View Exams";
+                    viewExamsBtn.className = "btn btn-success btn-sm";
+                    viewExamsBtn.addEventListener("click", () => fetchExamsBySubject(subjectId));
 
-                // Append buttons to the button container
-                buttonContainer.appendChild(viewStudentsBtn);
-                buttonContainer.appendChild(viewExamsBtn);
+                    // Append buttons to the button container
+                    buttonContainer.appendChild(viewStudentsBtn);
+                    buttonContainer.appendChild(viewExamsBtn);
 
-                // Append the button container to the list item
-                li.appendChild(buttonContainer);
+                    // Append the button container to the list item
+                    li.appendChild(buttonContainer);
 
-                // Append the list item to the subjects list
-                subjectsList.appendChild(li);
-            })
-            .catch(error => {
-                console.error(`Error fetching subject name: ${error.message}`);
-            });
-    });
-}
+                    // Append the list item to the subjects list
+                    subjectsList.appendChild(li);
+                })
+                .catch(error => {
+                    console.error(`Error fetching subject name: ${error.message}`);
+                });
+        });
+    }
 
     // Fetch students by subject
     async function fetchStudentsBySubject(subjectId) {
@@ -159,83 +159,99 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // Populate students list
-   async function populateStudents(students, subjectId) {
-    studentsList.innerHTML = "";
+    async function populateStudents(students, subjectId) {
+        studentsList.innerHTML = "";
 
-    try {
-    // Fetch all exams for the subject ID
-    const response = await fetch(`${apiUrl}/exams?subjectId=${subjectId}`);
-    const exams = await response.json();
+        try {
+            // Fetch all exams for the subject ID
+            const response = await fetch(`${apiUrl}/exams?subjectId=${subjectId}`);
+            const exams = await response.json();
 
-    students.forEach(student => {
-        const li = document.createElement("li");
-        li.className = "list-group-item";
+            students.forEach(student => {
+                const li = document.createElement("li");
+                li.className = "list-group-item";
 
-        // Calculate the average grade
-        let totalGrade = 0;
-        let gradeCount = 0;
+                // Calculate the average grade
+                let totalGrade = 0;
+                let gradeCount = 0;
 
-        exams.exams.forEach(exam => {
-            if (exam.grades && typeof exam.grades === "object") {
-                // Check if the student has a grade for this exam
-                const studentGrade = exam.grades[student.id];
-                if (studentGrade !== undefined) {
-                    totalGrade += studentGrade;
-                } else {
-                    totalGrade += 0; // Default to 0 if no grade is found
-                }
-                gradeCount++;
-            }
-        });
 
-        const averageGrade = gradeCount > 0 ? (totalGrade / gradeCount).toFixed(2) : "No grades";
+                exams.exams.forEach(exam => {
+                    console.log(exam);
 
-        // Set the list item text
-        li.textContent = `${student.name} (${student.id}) - Subject Grade: ${averageGrade}`;
-        studentsList.appendChild(li);
-    });
-} catch (error) {
-    console.error(`Error fetching exams or calculating grades: ${error.message}`);
-}
+                    // Parse the grades string into a usable object
+                    const gradesString = exam.grades || ""; // Ensure it's a valid string
+                    const gradesArray = gradesString.slice(1, -1).split(";"); // Remove enclosing braces and split
+                    const gradesObject = {};
 
-}
+                    gradesArray.forEach(entry => {
+                        const [studentId, grade] = entry.split(":").map(str => str.trim());
+                        if (studentId && grade) {
+                            gradesObject[studentId] = parseFloat(grade); // Convert grade to a number
+                        }
+                    });
+
+
+                    // Check if the student has a grade for this exam
+                    const studentGrade = gradesObject[student.id];
+
+                    if (studentGrade !== undefined) {
+                        totalGrade += studentGrade;
+                    } else {
+                        totalGrade += 0; // Default to 0 if no grade is found
+                    }
+                    gradeCount++;
+                });
+
+
+                const averageGrade = gradeCount > 0 ? (totalGrade / gradeCount).toFixed(0) : "No grades";
+
+                // Set the list item text
+                li.textContent = `${student.name} (${student.id}) - Subject Grade: ${averageGrade}`;
+                studentsList.appendChild(li);
+            });
+        } catch (error) {
+            console.error(`Error fetching exams or calculating grades: ${error.message}`);
+        }
+
+    }
 
 
     // Populate exams list
     function populateExams(exams) {
-    examsList.innerHTML = ""; // Clear the previous list
-    exams.forEach(exam => {
-        const li = document.createElement("li");
-        li.className = "list-group-item d-flex justify-content-between align-items-center";
-        li.textContent = `${exam.name} - ${exam.date}`;
+        examsList.innerHTML = ""; // Clear the previous list
+        exams.forEach(exam => {
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
+            li.textContent = `${exam.name} - ${exam.date}`;
 
-        // Create a button container
-        const buttonContainer = document.createElement("div");
-        buttonContainer.className = "d-flex align-items-center";
+            // Create a button container
+            const buttonContainer = document.createElement("div");
+            buttonContainer.className = "d-flex align-items-center";
 
-        // Create the Edit button
-        const editButton = document.createElement("button");
-        editButton.className = "btn btn-warning btn-sm me-2";
-        editButton.textContent = "Edit";
-        editButton.onclick = () => openExamSection(exam.id, exam.subject_id);
+            // Create the Edit button
+            const editButton = document.createElement("button");
+            editButton.className = "btn btn-warning btn-sm me-2";
+            editButton.textContent = "Edit";
+            editButton.onclick = () => openExamSection(exam.id, exam.subject_id);
 
-        // Create the Delete button
-        const deleteButton = document.createElement("button");
-        deleteButton.className = "btn btn-danger btn-sm";
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = () => deleteExam(exam.id);
+            // Create the Delete button
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "btn btn-danger btn-sm";
+            deleteButton.textContent = "Delete";
+            deleteButton.onclick = () => deleteExam(exam.id);
 
-        // Append buttons to the button container
-        buttonContainer.appendChild(editButton);
-        buttonContainer.appendChild(deleteButton);
+            // Append buttons to the button container
+            buttonContainer.appendChild(editButton);
+            buttonContainer.appendChild(deleteButton);
 
-        // Append the button container to the list item
-        li.appendChild(buttonContainer);
+            // Append the button container to the list item
+            li.appendChild(buttonContainer);
 
-        // Append the list item to the exams list
-        examsList.appendChild(li);
-    });
-}
+            // Append the list item to the exams list
+            examsList.appendChild(li);
+        });
+    }
 
     async function openExamSection(examId = null, subjectId = null) {
         currentExamId = examId;
@@ -450,7 +466,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 "        <button type=\"submit\" id=\"saveExamButton\" class=\"btn btn-primary mt-3\">Save Exam</button>";
 
 
-
             currentExamId = null;
         } catch (error) {
             console.error("Error saving exam:", error);
@@ -533,6 +548,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Event listeners for navigation
     backToSubjectsStudents.addEventListener("click", () => toggleSections(assignedSubjectsSection));
     backToSubjectsExams.addEventListener("click", () => toggleSections(assignedSubjectsSection));
+
+
+    signOutButton.addEventListener("click", function () {
+        window.location.href = "../custom/login.html";
+    });
+
 
     // Initialize
     fetchLecturerData();
