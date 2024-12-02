@@ -48,10 +48,13 @@ async function fetchSubjects() {
 
         // Loop through each exam
         exams.forEach(async exam => {
+             let subject = await fetch(`${apiUrl}/subject/${exam.subject_id}`);
+                subject = await subject.json();
+
             const subjectBlock = document.createElement("div");
             subjectBlock.className = "subject-container";
             subjectBlock.innerHTML = `
-                <h4>Subject: ${exam.subject_id}</h4>
+                <h4>Subject: ${subject.name}</h4>
                 <div id="exams-${exam.id}">
                     <p><strong>Exam Name:</strong> ${exam.name}</p>
                     <p><strong>Date:</strong> ${exam.date}</p>

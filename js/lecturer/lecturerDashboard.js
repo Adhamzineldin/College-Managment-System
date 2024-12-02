@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             // Fetch all exams for the subject ID
-            const response = await fetch(`${apiUrl}/exams?subjectId=${subjectId}`);
+            const response = await fetch(`${apiUrl}/exams/${subjectId}`);
             const exams = await response.json();
 
             students.forEach(student => {
