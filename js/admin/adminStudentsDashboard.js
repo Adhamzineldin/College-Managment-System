@@ -13,10 +13,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentStudentIndex = -1;
     let subjects = [];
 
+
+    const apiUrl = window.location.hostname === "localhost"
+  ? "http://localhost:5000"  // Local development
+  : "https://app5000.maayn.me";
+
     // Fetch subjects from backend
     const fetchSubjects = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/subjects");
+            const response = await fetch(`${apiUrl}/api/subjects`);
             const data = await response.json();
             if (data.subjects) {
                 subjects = data.subjects;
@@ -54,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch and render all students from the backend
     const fetchStudents = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/students");
+            const response = await fetch(`${apiUrl}/api/students`);
             const data = await response.json();
             if (data.students) {
                 renderStudents(data.students);
@@ -89,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const openModal = async (studentId = null) => {
         if (studentId) {
             try {
-                const response = await fetch(`http://localhost:5000/api/student/${studentId}`);
+                const response = await fetch(`${apiUrl}/api/student/${studentId}`);
                 const student = await response.json();
 
                 if (student) {
@@ -147,8 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const method = currentStudentIndex === -1 ? "POST" : "PUT";
             const url = currentStudentIndex === -1
-                ? "http://localhost:5000/api/add-user"
-                : `http://localhost:5000/api/student/${currentStudentIndex}`;
+                ? `${apiUrl}/api/add-user`
+                : `${apiUrl}/api/student/${currentStudentIndex}`;
 
             const response = await fetch(url, {
                 method,
@@ -200,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const confirmed = confirm("Are you sure you want to delete this student?");
         if (confirmed) {
             try {
-                const response = await fetch(`http://localhost:5000/api/student/${studentId}`, {
+                const response = await fetch(`${apiUrl}/api/student/${studentId}`, {
                     method: "DELETE"
                 });
                 const result = await response.json();

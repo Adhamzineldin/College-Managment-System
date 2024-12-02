@@ -4,13 +4,15 @@ const goBack = () => {
 }
 
 
-const apiUrl = "http://localhost:5000/api";
+const apiUrl = window.location.hostname === "localhost"
+  ? "http://localhost:5000"  // Local development
+  : "https://app5000.maayn.me";
 let timerInterval;
 
 // Fetch and render the exam with the student ID
 async function fetchExam(examId, studentId) {
     try {
-        const response = await fetch(`${apiUrl}/exam/${examId}`);
+        const response = await fetch(`${apiUrl}/api/exam/${examId}`);
         let examData = await response.json();
         console.log(examData);
 
@@ -77,7 +79,7 @@ function startTimer(duration) {
 // Add student to exam participants
 async function addStudentToExam(examId, studentId) {
     try {
-        const response = await fetch(`${apiUrl}/exam/${examId}/add-student`, {
+        const response = await fetch(`${apiUrl}/api/exam/${examId}/add-student`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ studentId }),
@@ -105,7 +107,7 @@ async function submitExam(examId, questions, studentId) {
 
     try {
         // Fetch the exam data to get the model answers
-        const examResponse = await fetch(`${apiUrl}/exam/${examId}`);
+        const examResponse = await fetch(`${apiUrl}/api/exam/${examId}`);
         const examData = await examResponse.json();
         const modelAnswers = examData.answers; // Assuming `answers` contains the correct answers
 
@@ -123,7 +125,7 @@ async function submitExam(examId, questions, studentId) {
         });
 
         // Send the submission with the calculated grade
-        const response = await fetch(`${apiUrl}/exam/${examId}/submit`, {
+        const response = await fetch(`${apiUrl}/api/exam/${examId}/submit`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ studentId, answers, grade: Math.round(grade) }),

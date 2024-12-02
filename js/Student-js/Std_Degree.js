@@ -3,12 +3,14 @@ function goBack() {
     window.location.href = "Std_Profile.html";
 }
 
-const apiUrl = 'http://localhost:5000/api';
+const apiUrl = window.location.hostname === "localhost"
+  ? "http://localhost:5000"  // Local development
+  : "https://app5000.maayn.me";
 
 // Fetch subjects from backend API (running on localhost:5000)
 async function fetchSubjects() {
     try {
-        const response = await fetch('http://localhost:5000/api/subjects'); // URL to fetch subjects from backend
+        const response = await fetch(`${apiUrl}/api/subjects`); // URL to fetch subjects from backend
         if (!response.ok) {
             throw new Error('Error fetching subjects');
         }
@@ -25,7 +27,7 @@ async function fetchSubjects() {
 
         for (const subject of filteredSubjects) {
             console.log('subject', subject);
-            const subjectExamsResponse = await fetch(`http://localhost:5000/api/exams/${subject.id}`);
+            const subjectExamsResponse = await fetch(`${apiUrl}/api/exams/${subject.id}`);
             const exams = await subjectExamsResponse.json();
             console.log('exams', exams);
 

@@ -7,7 +7,7 @@ async function fetchSubjects() {
         const response = await fetch(`${apiUrl}/exams`);
         let exams = await response.json();
         exams = exams.exams;
-        console.log(exams);
+
 
         // Clear the container
         const subjectsContainer = document.getElementById("subjects-container");
@@ -43,14 +43,19 @@ async function fetchSubjects() {
 // Check if the student can enter the exam or show their grade
 async function checkStudentEligibility(exam, actionBlock) {
     try {
-        console.log("Checking eligibility for exam:", exam);
+
 
         // Fix grades and entered IDs to be valid JSON
+
+        const response = await fetch(`${apiUrl}/exam/${exam.id}`);
+        exam = await response.json();
+
+
+
         const grades = exam.grades ? parseCustomData(exam.grades) : {};
         const enteredIds = exam.entredID ? parseCustomData(exam.entredID) : [];
 
-        console.log("Grades:", grades);
-        console.log("Entered IDs:", enteredIds);
+
 
         // Check if the student has entered the exam
         if (enteredIds.includes(studentId)) {
@@ -68,8 +73,9 @@ async function checkStudentEligibility(exam, actionBlock) {
             }
         } else {
             // Allow student to enter the exam if they haven't entered it yet
-            actionBlock.innerHTML = `
-                <button class="btn btn-primary btn-enter" onclick="enterExam(${exam.id})">Enter Exam</button>
+
+            actionBlock.innerHTML = ` 
+                <button class="btn btn-primary btn-enter" onclick="enterExam('${exam.id}')">Enter Exam</button>
             `;
         }
     } catch (error) {
@@ -79,28 +85,46 @@ async function checkStudentEligibility(exam, actionBlock) {
 }
 
 // Utility function to parse custom formatted data
+// Utility function to parse custom formatted data
 function parseCustomData(data) {
-    // Replace semicolons with commas and remove braces if necessary
-    let cleanedData = data.replace(/[{};]/g, '').split(';').filter(item => item !== '');
-    // Convert to an object or array as needed
-    if (cleanedData[0].includes(':')) {
-        // Convert to an object (e.g., grades: "{20230003: 100}")
+    if (!data) return null;
+
+    // Ensure the input is clean and valid
+    data = data.trim();
+
+    // Handle objects (e.g., grades: "{20230003: 100}")
+    if (data.startsWith("{") && data.includes(":")) {
+        // Remove braces and split by commas or semicolons
+        const cleanedData = data.replace(/[{}]/g, "").split(/[,;]/).filter(item => item.trim() !== "");
         return cleanedData.reduce((acc, item) => {
-            const [key, value] = item.split(':');
-            acc[key] = value;
+            const [key, value] = item.split(":").map(str => str.trim());
+            if (key && value) {
+                acc[key] = Number(value); // Convert value to a number
+            }
             return acc;
         }, {});
-    } else {
-        // Convert to an array (e.g., entredID: "{20230003;}")
-        return cleanedData;
     }
+
+    // Handle arrays (e.g., entered IDs: "{20230003;20230004;}")
+    if (data.startsWith("{") && !data.includes(":")) {
+        return data.replace(/[{}]/g, "").split(";").filter(item => item.trim() !== "");
+    }
+
+    // Return null if the format doesn't match
+    return null;
 }
 
 // Redirect to the exam page
 function enterExam(examId) {
+
     localStorage.setItem("examId", examId); // Store examId in localStorage
     window.location.href = "Std_Exam.html"; // Redirect to the exam page
 }
+
+const goBack = () => {
+    window.location.href='./Std_Profile.html';
+}
+
 
 // Initialize the page by fetching exams
 fetchSubjects();
