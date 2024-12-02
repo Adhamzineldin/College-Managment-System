@@ -1,4 +1,4 @@
-// Sample data from the backend
+// Get the data from the local storage that came from the backend 
 const studentData = JSON.parse(localStorage.getItem("currentUser"));
 
 // Populate table with data
@@ -13,24 +13,10 @@ profileData.innerHTML = `
     </tr>
 `;
 
-const updateCredentialsButton = document.getElementById('update-credentials');
+// Change your password using bootstrap modal method
+const updateCredentialsButton = document.getElementById('update-credentials-btn');
 const modal = new bootstrap.Modal(document.getElementById('updateCredentialsModal'));
 
 updateCredentialsButton.addEventListener('click', ()=> {
     modal.show();
 })
-
-// Change password function
-// function changePassword() {
-//     const currentPassword = document.getElementById("currentPassword").value;
-//     const newPassword = document.getElementById("newPassword").value;
-//     const confirmPassword = document.getElementById("confirmPassword").value;
-
-//     if (newPassword !== confirmPassword) {
-//         alert("New passwords do not match!");
-//         return;
-//     }
-
-//     alert("Password successfully changed!");
-//     // Send password change request to the server
-// }
