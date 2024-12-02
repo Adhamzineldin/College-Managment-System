@@ -490,9 +490,9 @@ function generateSubjectId() {
 app.post('/api/exam', (req, res) => {
     const { subject_id, name, date, duration, total_marks, questions, answers } = req.body;
 
-    if (!subject_id || !name || !date || !duration || !total_marks || !questions || !answers) {
-        return res.status(400).json({ message: 'All fields are required.' });
-    }
+    // if (!subject_id || !name || !date || !duration || !total_marks || !questions || !answers) {
+    //     return res.status(400).json({ message: 'All fields are required.' });
+    // }
 
     const id = generateId(); // Generate a unique ID for the exam
 
@@ -509,7 +509,6 @@ app.post('/api/exam', (req, res) => {
         }
     );
 });
-
 // Get all exams route
 app.get('/api/exams', (req, res) => {
     const query = `SELECT * FROM exams`;
@@ -538,8 +537,9 @@ app.get('/api/exams/:subject_id', (req, res) => {
 });
 
 // Get an exam by ID
+// Get an exam by ID
 app.get('/api/exam/:id', (req, res) => {
-    const examId = req.params.id; // Get the exam ID from the URL parameter
+    const examId = req.params.id;
     const query = `SELECT * FROM exams WHERE id = ?`;
 
     db.get(query, [examId], (err, row) => {
@@ -552,19 +552,27 @@ app.get('/api/exam/:id', (req, res) => {
             return res.status(404).json({ message: 'Exam not found.' });
         }
 
-        return res.status(200).json(row); // Return the exam data including the questions and answers fields
+        // Split questions and answers back into arrays
+        const questions = row.questions.split(';');
+        const answers = row.answers.split(';').map(answer => answer.replace(/{|}/g, '').split(';'));
+
+        // Add the parsed questions and answers to the response
+        return res.status(200).json({
+            ...row,
+            questions,
+            answers
+        });
     });
 });
 
 // Update an exam route
 app.put('/api/exam/:id', (req, res) => {
-    const examId = req.params.id;  // Get the exam ID from the URL parameter
+    const examId = req.params.id;
     const { subject_id, name, date, duration, total_marks, questions, answers } = req.body;
 
-    // Validate input data
-    if (!subject_id || !name || !date || !duration || !total_marks || !questions || !answers) {
-        return res.status(400).json({ message: 'All fields are required.' });
-    }
+    // if (!subject_id || !name || !date || !duration || !total_marks || !questions || !answers) {
+    //     return res.status(400).json({ message: 'All fields are required.' });
+    // }
 
     const query = `UPDATE exams SET subject_id = ?, name = ?, date = ?, duration = ?, total_marks = ?, questions = ?, answers = ? WHERE id = ?`;
 
@@ -577,7 +585,6 @@ app.put('/api/exam/:id', (req, res) => {
                 return res.status(500).json({ message: 'Error updating exam.' });
             }
 
-            // If no rows were affected, that means no exam was found with the given ID
             if (this.changes === 0) {
                 return res.status(404).json({ message: 'Exam not found.' });
             }
@@ -586,7 +593,6 @@ app.put('/api/exam/:id', (req, res) => {
         }
     );
 });
-
 // Delete exam route
 app.delete('/api/exam/:id', (req, res) => {
     const examId = req.params.id;

@@ -23,18 +23,64 @@
         <ul id="subjectsList" class="list-group"></ul>
     </div>
 
+    <!-- Students Section -->
     <div id="studentsSection" class="d-none">
         <h3 id="selectedSubjectNameStudents"></h3>
         <ul id="studentsList" class="list-group"></ul>
         <button id="backToSubjectsStudents" class="btn btn-secondary">Back to Subjects</button>
     </div>
 
+    <!-- Exams Section -->
     <div id="examsSection" class="d-none">
         <h3 id="selectedSubjectNameExams"></h3>
         <ul id="examsList" class="list-group"></ul>
-        <button id="backToSubjectsExams" class="btn btn-secondary">Back to Subjects</button>
-    </div>
 
+        <!-- Add Exam Button -->
+        <button id="addExamButton" class="btn btn-success mt-3">Add Exam</button>
+
+        <button id="backToSubjectsExams" class="btn btn-secondary mt-3">Back to Subjects</button>
+
+        <!-- Exam Section for Adding/Editing Exams -->
+        <div id="examSection" class="d-none">
+    <h3 id="examSectionTitle">Add Exam</h3>
+    <form id="examForm">
+        <div class="mb-3">
+            <label for="examTitle" class="form-label">Exam Title</label>
+            <input type="text" class="form-control" id="examTitle" required>
+        </div>
+        <div class="mb-3">
+            <label for="examDuration" class="form-label">Duration (mins)</label>
+            <input type="number" class="form-control" id="examDuration" required>
+        </div>
+        <div class="mb-3">
+            <label for="examDate" class="form-label">Exam Date</label>
+            <input type="date" class="form-control" id="examDate" required>
+        </div>
+        <div class="mb-3">
+            <label for="examMarks" class="form-label">Total Marks</label>
+            <input type="number" class="form-control" id="examMarks" required>
+        </div>
+
+        <!-- Questions and Answers Section -->
+        <div id="questionsContainer">
+            <h4>Questions</h4>
+            <div id="questionFields">
+                <!-- Dynamically added questions and answers will appear here -->
+            </div>
+            <button type="button" id="addQuestionButton" class="btn btn-secondary">Add Question</button>
+        </div>
+
+        <input type="hidden" id="subjectId"> <!-- Hidden field for subject ID -->
+        <button type="submit" id="saveExamButton" class="btn btn-primary mt-3">Save Exam</button>
+    </form>
+</div>
+
+
+        <!-- Report Generation Section -->
+        <div id="reportSection" class="d-none">
+            <button id="generateReport" class="btn btn-info">Generate Report</button>
+        </div>
+    </div>
 
 </div>
 
