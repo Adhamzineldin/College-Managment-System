@@ -11,6 +11,7 @@ let timerInterval;
 
 // Fetch and render the exam with the student ID
 async function fetchExam(examId, studentId) {
+
     try {
         const response = await fetch(`${apiUrl}/api/exam/${examId}`);
         let examData = await response.json();

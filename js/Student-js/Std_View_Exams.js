@@ -1,10 +1,13 @@
-const apiUrl = "http://localhost:5000/api"; // Your API URL
+const apiUrl = window.location.hostname === "localhost"
+  ? "http://localhost:5000"  // Local development
+  : "https://app5000.maayn.me";
+let timerInterval; // Your API URL
 const studentId = JSON.parse(localStorage.getItem("currentUser")).id; // Get student ID from localStorage
 
 // Fetch and render subjects and exams
 async function fetchSubjects() {
     try {
-        const response = await fetch(`${apiUrl}/exams`);
+        const response = await fetch(`${apiUrl}/api/exams`);
         let exams = await response.json();
         exams = exams.exams;
 
@@ -47,7 +50,7 @@ async function checkStudentEligibility(exam, actionBlock) {
 
         // Fix grades and entered IDs to be valid JSON
 
-        const response = await fetch(`${apiUrl}/exam/${exam.id}`);
+        const response = await fetch(`${apiUrl}/api/exam/${exam.id}`);
         exam = await response.json();
 
 
@@ -125,6 +128,8 @@ const goBack = () => {
     window.location.href='./Std_Profile.html';
 }
 
+
+console.log(apiUrl);
 
 // Initialize the page by fetching exams
 fetchSubjects();

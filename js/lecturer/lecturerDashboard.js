@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     const lecturerId = "20230002"; // Replace with the logged-in lecturer's ID
-    const apiUrl = window.location.hostname === "localhost"
-        ? "http://localhost:5000"  // Local development
-        : "https://app5000.maayn.me";
+    const apiUrl = "http://localhost:5000/api";
 
     // Sections and lists
     const subjectsList = document.getElementById("subjectsList");
@@ -29,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch lecturer data
     async function fetchLecturerData() {
         try {
-            const response = await fetch(`${apiUrl}/api/lecturer/${lecturerId}`);
+            const response = await fetch(`${apiUrl}/lecturer/${lecturerId}`);
             if (!response.ok) {
                 throw new Error(`Error fetching lecturer data: ${response.statusText}`);
             }
@@ -43,18 +41,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Populate assigned subjects
     function populateSubjects(subjects) {
         subjectsList.innerHTML = "";
-
         subjects.forEach(subjectId => {
             const li = document.createElement("li");
             li.className = "list-group-item d-flex justify-content-between align-items-center";
 
-
             // Fetch the subject name
-            fetch(`${apiUrl}/api/subject/${subjectId}`)
+            fetch(`${apiUrl}/subject/${subjectId}`)
                 .then(response => response.json())
                 .then(data => {
-
-
                     const subjectName = data.name;
                     li.textContent = subjectName;
 
@@ -83,29 +77,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     // Append the list item to the subjects list
                     subjectsList.appendChild(li);
-
-
                 })
                 .catch(error => {
                     console.error(`Error fetching subject name: ${error.message}`);
                 });
-
         });
-
     }
 
     // Fetch students by subject
     async function fetchStudentsBySubject(subjectId) {
 
         try {
-            const subjectResponse = await fetch(`${apiUrl}/api/subject/${subjectId}`);
+            const subjectResponse = await fetch(`${apiUrl}/subject/${subjectId}`);
             if (!subjectResponse.ok) {
                 throw new Error(`Error fetching subject data: ${subjectResponse.statusText}`);
             }
             const subjectData = await subjectResponse.json();
             const subjectName = subjectData.name;
 
-            const response = await fetch(`${apiUrl}/api/students`);
+            const response = await fetch(`${apiUrl}/students`);
             if (!response.ok) {
                 throw new Error(`Error fetching students: ${response.statusText}`);
             }
@@ -140,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         try {
             // Fetch exams for the specific subject
-            const response = await fetch(`${apiUrl}/api/exams/${subjectId}`);
+            const response = await fetch(`${apiUrl}/exams/${subjectId}`);
 
             if (!response.ok) {
                 throw new Error(`Error fetching exams: ${response.statusText}`);
@@ -149,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const exams = await response.json(); // Assuming this returns an array of exam objects
 
             // Fetch subject name for the header
-            const subjectResponse = await fetch(`${apiUrl}/api/subject/${subjectId}`);
+            const subjectResponse = await fetch(`${apiUrl}/subject/${subjectId}`);
             if (!subjectResponse.ok) {
                 throw new Error(`Error fetching subject data: ${subjectResponse.statusText}`);
             }
@@ -174,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             // Fetch all exams for the subject ID
-            const response = await fetch(`${apiUrl}/api/exams/${subjectId}`);
+            const response = await fetch(`${apiUrl}/exams/${subjectId}`);
             const exams = await response.json();
 
             students.forEach(student => {
@@ -270,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (examId) {
             try {
                 // Fetch exam data from backend
-                const response = await fetch(`${apiUrl}/api/exam/${examId}`);
+                const response = await fetch(`${apiUrl}/exam/${examId}`);
                 const examData = await response.json();
                 console.log(examData); // Log to inspect data structure
 
@@ -368,7 +358,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function fetchExamById(examId) {
         try {
-            const response = await fetch(`${apiUrl}/api/exam/${examId}`);
+            const response = await fetch(`${apiUrl}/exam/${examId}`);
             const exam = await response.json();
             document.getElementById("examTitle").value = exam.name;
             document.getElementById("examDuration").value = exam.duration;
@@ -425,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             if (currentExamId) {
                 // If editing an existing exam
-                await fetch(`${apiUrl}/api/exam/${currentExamId}`, {
+                await fetch(`${apiUrl}/exam/${currentExamId}`, {
                     method: "PUT",
                     headers: {"Content-Type": "application/json"},
                     body: JSON.stringify(examData),
@@ -433,7 +423,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Exam updated successfully!");
             } else {
                 // If adding a new exam
-                await fetch(`${apiUrl}/api/exam`, {
+                await fetch(`${apiUrl}/exam`, {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
                     body: JSON.stringify(examData),
@@ -446,7 +436,34 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("examsList").classList.remove("d-none");
             document.getElementById("examSection").classList.add("d-none");
 
-            resetExamForm();
+            document.getElementById("examForm").innerHTML = "<div class=\"mb-3\">\n" +
+                "            <label for=\"examTitle\" class=\"form-label\">Exam Title</label>\n" +
+                "            <input type=\"text\" class=\"form-control\" id=\"examTitle\" required>\n" +
+                "        </div>\n" +
+                "        <div class=\"mb-3\">\n" +
+                "            <label for=\"examDuration\" class=\"form-label\">Duration (mins)</label>\n" +
+                "            <input type=\"number\" class=\"form-control\" id=\"examDuration\" required>\n" +
+                "        </div>\n" +
+                "        <div class=\"mb-3\">\n" +
+                "            <label for=\"examDate\" class=\"form-label\">Exam Date</label>\n" +
+                "            <input type=\"date\" class=\"form-control\" id=\"examDate\" required>\n" +
+                "        </div>\n" +
+                "        <div class=\"mb-3\">\n" +
+                "            <label for=\"examMarks\" class=\"form-label\">Total Marks</label>\n" +
+                "            <input type=\"number\" class=\"form-control\" id=\"examMarks\" required>\n" +
+                "        </div>\n" +
+                "\n" +
+                "        <!-- Questions and Answers Section -->\n" +
+                "        <div id=\"questionsContainer\">\n" +
+                "            <h4>Questions</h4>\n" +
+                "            <div id=\"questionFields\">\n" +
+                "                <!-- Dynamically added questions and answers will appear here -->\n" +
+                "            </div>\n" +
+                "            <button type=\"button\" id=\"addQuestionButton\" class=\"btn btn-secondary\">Add Question</button>\n" +
+                "        </div>\n" +
+                "\n" +
+                "        <input type=\"hidden\" id=\"subjectId\"> <!-- Hidden field for subject ID -->\n" +
+                "        <button type=\"submit\" id=\"saveExamButton\" class=\"btn btn-primary mt-3\">Save Exam</button>";
 
 
             currentExamId = null;
@@ -459,7 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function deleteExam(examId) {
         if (confirm("Are you sure you want to delete this exam?")) {
             try {
-                await fetch(`${apiUrl}/api/exam/${examId}`, {method: "DELETE"});
+                await fetch(`${apiUrl}/exam/${examId}`, {method: "DELETE"});
                 alert("Exam deleted successfully!");
                 fetchExamsBySubject(subjectIdInput.value);
             } catch (error) {
@@ -516,84 +533,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    function resetExamForm() {
-        // Dynamically add the form content
-document.getElementById("examForm").innerHTML = `
-    <form id="examForm">
-        <div class="mb-3">
-            <label for="examTitle" class="form-label">Exam Title</label>
-            <input type="text" class="form-control" id="examTitle" required>
-        </div>
-        <div class="mb-3">
-            <label for="examDuration" class="form-label">Duration (mins)</label>
-            <input type="number" class="form-control" id="examDuration" required>
-        </div>
-        <div class="mb-3">
-            <label for="examDate" class="form-label">Exam Date</label>
-            <input type="date" class="form-control" id="examDate" required>
-        </div>
-        <div class="mb-3">
-            <label for="examMarks" class="form-label">Total Marks</label>
-            <input type="number" class="form-control" id="examMarks" required>
-        </div>
-        <!-- Questions and Answers Section -->
-        <div id="questionsContainer">
-            <h4>Questions</h4>
-            <div id="questionFields">
-                <!-- Dynamically added questions and answers will appear here -->
-            </div>
-            <button type="button" id="addQuestionButton" class="btn btn-secondary">Add Question</button>
-        </div>
-        <input type="hidden" id="subjectId"> <!-- Hidden field for subject ID -->
-        <button type="submit" id="saveExamButton" class="btn btn-primary mt-3">Save Exam</button>
-    </form>
-`;
-
-// Use event delegation for the Add Question button
-document.getElementById("questionsContainer").addEventListener("click", function (e) {
-    if (e.target && e.target.id === "addQuestionButton") {
-        // Create a new question block with a field for the question and its answers
-        const questionCount = document.querySelectorAll(".question-block").length + 1; // To keep track of question count
-
-        // Create a div to wrap the question and answers
-        const questionBlock = document.createElement("div");
-        questionBlock.classList.add("question-block", "mb-3");
-        questionBlock.innerHTML = `
-            <label for="question_${questionCount}" class="form-label">Question ${questionCount}</label>
-            <input type="text" class="form-control" id="question_${questionCount}" name="question_${questionCount}" required>
-            <div class="answers-container mb-3" id="answers_${questionCount}">
-                <h5>Answers</h5>
-                <div class="mb-2">
-                    <input type="text" class="form-control" name="answer_${questionCount}_1" placeholder="Answer 1" required>
-                </div>
-                <button type="button" class="btn btn-info addAnswerButton" data-question-id="${questionCount}">Add Answer</button>
-            </div>
-        `;
-
-        // Append the new question block to the question fields container
-        document.getElementById("questionFields").appendChild(questionBlock);
-    }
-
-    // Handle dynamically added Add Answer buttons
-    if (e.target && e.target.classList.contains("addAnswerButton")) {
-        const questionId = e.target.getAttribute("data-question-id");
-        const answerCount = document.querySelectorAll(`#answers_${questionId} input[type="text"]`).length + 1;
-
-        // Create a new input field for the answer
-        const answerInput = document.createElement("div");
-        answerInput.classList.add("mb-2");
-        answerInput.innerHTML = `
-            <input type="text" class="form-control" name="answer_${questionId}_${answerCount}" placeholder="Answer ${answerCount}" required>
-        `;
-
-        // Append the new answer input to the answers container
-        document.getElementById(`answers_${questionId}`).appendChild(answerInput);
-    }
-});
-
-    }
-
-
     // Toggle sections
     function toggleSections(sectionToShow) {
         assignedSubjectsSection.classList.add("d-none");
@@ -602,7 +541,6 @@ document.getElementById("questionsContainer").addEventListener("click", function
 
         document.getElementById("examsList").classList.remove("d-none");
         document.getElementById("examSection").classList.add("d-none");
-        resetExamForm();
 
         sectionToShow.classList.remove("d-none");
     }
