@@ -1,3 +1,8 @@
+/* go back to Std_profile */
+const goBack = () => {
+    window.location.href = '/html/student/Std_Profile.html'
+}
+
 /* Reset Button */
 let btn_reset = document.querySelector("button.reset");
 btn_reset.addEventListener("click", function () {

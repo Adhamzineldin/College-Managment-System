@@ -8,6 +8,25 @@ body {
     background-color: #f8f9fa;
 }
 
+/* go back button */
+.go-back {
+    display: flex;
+    align-items: center;
+}
+
+/* left arrow for go back button */
+.go-back::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 10px solid white;
+    margin-right: 10px;
+}
+
+
 /* Form */
 #paymentForm {
     background-color: #ffffff;
