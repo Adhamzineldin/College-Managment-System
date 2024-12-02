@@ -159,18 +159,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // Populate students list
-    function populateStudents(students) {
-        studentsList.innerHTML = "";
-        students.forEach(student => {
-            const li = document.createElement("li");
-            li.className = "list-group-item";
-            li.textContent = `${student.name} (${student.id}) - Final Grade: ${student.finalGrade}`;
-            studentsList.appendChild(li);
+   async function populateStudents(students, subjectId) {
+    studentsList.innerHTML = "";
+
+    try {
+    // Fetch all exams for the subject ID
+    const response = await fetch(`${apiUrl}/exams?subjectId=${subjectId}`);
+    const exams = await response.json();
+
+    students.forEach(student => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+
+        // Calculate the average grade
+        let totalGrade = 0;
+        let gradeCount = 0;
+
+        exams.exams.forEach(exam => {
+            if (exam.grades && typeof exam.grades === "object") {
+                // Check if the student has a grade for this exam
+                const studentGrade = exam.grades[student.id];
+                if (studentGrade !== undefined) {
+                    totalGrade += studentGrade;
+                } else {
+                    totalGrade += 0; // Default to 0 if no grade is found
+                }
+                gradeCount++;
+            }
         });
-    }
+
+        const averageGrade = gradeCount > 0 ? (totalGrade / gradeCount).toFixed(2) : "No grades";
+
+        // Set the list item text
+        li.textContent = `${student.name} (${student.id}) - Subject Grade: ${averageGrade}`;
+        studentsList.appendChild(li);
+    });
+} catch (error) {
+    console.error(`Error fetching exams or calculating grades: ${error.message}`);
+}
+
+}
+
 
     // Populate exams list
-function populateExams(exams) {
+    function populateExams(exams) {
     examsList.innerHTML = ""; // Clear the previous list
     exams.forEach(exam => {
         const li = document.createElement("li");
