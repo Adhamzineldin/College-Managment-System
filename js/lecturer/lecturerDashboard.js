@@ -39,43 +39,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Populate assigned subjects
-    function populateSubjects(subjects) {
-        subjectsList.innerHTML = "";
-        subjects.forEach(subjectId => {
-            const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between align-items-center";
+   function populateSubjects(subjects) {
+    subjectsList.innerHTML = "";
+    subjects.forEach(subjectId => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
 
-            // Fetch the subject name
-            fetch(`${apiUrl}/subject/${subjectId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const subjectName = data.name;
-                    li.textContent = subjectName;
+        // Fetch the subject name
+        fetch(`${apiUrl}/subject/${subjectId}`)
+            .then(response => response.json())
+            .then(data => {
+                const subjectName = data.name;
+                li.textContent = subjectName;
 
-                    // Create 'View Students' button
-                    const viewStudentsBtn = document.createElement("button");
-                    viewStudentsBtn.textContent = "View Students";
-                    viewStudentsBtn.className = "btn btn-primary btn-sm me-2";
-                    viewStudentsBtn.addEventListener("click", () => fetchStudentsBySubject(subjectId));
+                // Create a button container
+                const buttonContainer = document.createElement("div");
+                buttonContainer.className = "d-flex align-items-center";
 
-                    // Create 'View Exams' button
-                    const viewExamsBtn = document.createElement("button");
-                    viewExamsBtn.textContent = "View Exams";
-                    viewExamsBtn.className = "btn btn-success btn-sm";
-                    viewExamsBtn.addEventListener("click", () => fetchExamsBySubject(subjectId));
+                // Create 'View Students' button
+                const viewStudentsBtn = document.createElement("button");
+                viewStudentsBtn.textContent = "View Students";
+                viewStudentsBtn.className = "btn btn-primary btn-sm me-2";
+                viewStudentsBtn.addEventListener("click", () => fetchStudentsBySubject(subjectId));
 
-                    // Append buttons to the list item
-                    li.appendChild(viewStudentsBtn);
-                    li.appendChild(viewExamsBtn);
+                // Create 'View Exams' button
+                const viewExamsBtn = document.createElement("button");
+                viewExamsBtn.textContent = "View Exams";
+                viewExamsBtn.className = "btn btn-success btn-sm";
+                viewExamsBtn.addEventListener("click", () => fetchExamsBySubject(subjectId));
 
-                    // Append the list item to the subjects list
-                    subjectsList.appendChild(li);
-                })
-                .catch(error => {
-                    console.error(`Error fetching subject name: ${error.message}`);
-                });
-        });
-    }
+                // Append buttons to the button container
+                buttonContainer.appendChild(viewStudentsBtn);
+                buttonContainer.appendChild(viewExamsBtn);
+
+                // Append the button container to the list item
+                li.appendChild(buttonContainer);
+
+                // Append the list item to the subjects list
+                subjectsList.appendChild(li);
+            })
+            .catch(error => {
+                console.error(`Error fetching subject name: ${error.message}`);
+            });
+    });
+}
 
     // Fetch students by subject
     async function fetchStudentsBySubject(subjectId) {
@@ -163,28 +170,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Populate exams list
-    function populateExams(exams) {
-        examsList.innerHTML = ""; // Clear the previous list
-        exams.forEach(exam => {
-            const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between align-items-center";
-            li.textContent = `${exam.name} - ${exam.date}`;
+function populateExams(exams) {
+    examsList.innerHTML = ""; // Clear the previous list
+    exams.forEach(exam => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.textContent = `${exam.name} - ${exam.date}`;
 
-            const editButton = document.createElement("button");
-            editButton.className = "btn btn-warning btn-sm";
-            editButton.textContent = "Edit";
-            editButton.onclick = () => openExamSection(exam.id, exam.subject_id);
+        // Create a button container
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className = "d-flex align-items-center";
 
-            const deleteButton = document.createElement("button");
-            deleteButton.className = "btn btn-danger btn-sm";
-            deleteButton.textContent = "Delete";
-            deleteButton.onclick = () => deleteExam(exam.id);
+        // Create the Edit button
+        const editButton = document.createElement("button");
+        editButton.className = "btn btn-warning btn-sm me-2";
+        editButton.textContent = "Edit";
+        editButton.onclick = () => openExamSection(exam.id, exam.subject_id);
 
-            li.appendChild(editButton);
-            li.appendChild(deleteButton);
-            examsList.appendChild(li);
-        });
-    }
+        // Create the Delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "btn btn-danger btn-sm";
+        deleteButton.textContent = "Delete";
+        deleteButton.onclick = () => deleteExam(exam.id);
+
+        // Append buttons to the button container
+        buttonContainer.appendChild(editButton);
+        buttonContainer.appendChild(deleteButton);
+
+        // Append the button container to the list item
+        li.appendChild(buttonContainer);
+
+        // Append the list item to the exams list
+        examsList.appendChild(li);
+    });
+}
 
     async function openExamSection(examId = null, subjectId = null) {
         currentExamId = examId;
@@ -368,6 +387,38 @@ document.addEventListener("DOMContentLoaded", () => {
             await fetchExamsBySubject(currentSubjectId);
             document.getElementById("examsList").classList.remove("d-none");
             document.getElementById("examSection").classList.add("d-none");
+
+            document.getElementById("examForm").innerHTML = "<div class=\"mb-3\">\n" +
+                "            <label for=\"examTitle\" class=\"form-label\">Exam Title</label>\n" +
+                "            <input type=\"text\" class=\"form-control\" id=\"examTitle\" required>\n" +
+                "        </div>\n" +
+                "        <div class=\"mb-3\">\n" +
+                "            <label for=\"examDuration\" class=\"form-label\">Duration (mins)</label>\n" +
+                "            <input type=\"number\" class=\"form-control\" id=\"examDuration\" required>\n" +
+                "        </div>\n" +
+                "        <div class=\"mb-3\">\n" +
+                "            <label for=\"examDate\" class=\"form-label\">Exam Date</label>\n" +
+                "            <input type=\"date\" class=\"form-control\" id=\"examDate\" required>\n" +
+                "        </div>\n" +
+                "        <div class=\"mb-3\">\n" +
+                "            <label for=\"examMarks\" class=\"form-label\">Total Marks</label>\n" +
+                "            <input type=\"number\" class=\"form-control\" id=\"examMarks\" required>\n" +
+                "        </div>\n" +
+                "\n" +
+                "        <!-- Questions and Answers Section -->\n" +
+                "        <div id=\"questionsContainer\">\n" +
+                "            <h4>Questions</h4>\n" +
+                "            <div id=\"questionFields\">\n" +
+                "                <!-- Dynamically added questions and answers will appear here -->\n" +
+                "            </div>\n" +
+                "            <button type=\"button\" id=\"addQuestionButton\" class=\"btn btn-secondary\">Add Question</button>\n" +
+                "        </div>\n" +
+                "\n" +
+                "        <input type=\"hidden\" id=\"subjectId\"> <!-- Hidden field for subject ID -->\n" +
+                "        <button type=\"submit\" id=\"saveExamButton\" class=\"btn btn-primary mt-3\">Save Exam</button>";
+
+
+
             currentExamId = null;
         } catch (error) {
             console.error("Error saving exam:", error);
