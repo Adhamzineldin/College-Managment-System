@@ -66,6 +66,3 @@ For any queries or issues, please contact:
  - [Adhamzineldin](https://github.com/Adhamzineldin)
  - [Ayman-Elfeky](https://github.com/Ayman-Elfeky)
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
