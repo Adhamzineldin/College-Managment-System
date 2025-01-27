@@ -1,0 +1,115 @@
+. 
+├── ./.idea
+│   ├── ./.idea/.gitignore
+│   ├── ./.idea/dataSources.xml
+│   ├── ./.idea/git_toolbox_blame.xml
+│   ├── ./.idea/git_toolbox_prj.xml
+│   ├── ./.idea/inspectionProfiles
+│   │   └── ./.idea/inspectionProfiles/Project_Default.xml
+│   ├── ./.idea/jsLibraryMappings.xml
+│   ├── ./.idea/material_theme_project_new.xml
+│   ├── ./.idea/modules.xml
+│   ├── ./.idea/php.xml
+│   ├── ./.idea/project.iml
+│   ├── ./.idea/sqldialects.xml
+│   └── ./.idea/vcs.xml
+├── ./Diagrams
+│   ├── ./Diagrams/Class Diagram.svg
+│   ├── ./Diagrams/Class diagram.png
+│   ├── ./Diagrams/DFD(Adham).drawio.svg
+│   ├── ./Diagrams/Use case digram(David).svg
+│   ├── ./Diagrams/activity diagram(Hazem).svg
+│   └── ./Diagrams/sequence_diagram.drawio.svg
+├── ./backend
+│   ├── ./backend/server.js
+│   └── ./backend/users.db
+├── ./css
+│   ├── ./css/Student-CSS
+│   │   ├── ./css/Student-CSS/Std_Degree.css
+│   │   ├── ./css/Student-CSS/Std_Exam.css
+│   │   ├── ./css/Student-CSS/Std_Payment.css
+│   │   ├── ./css/Student-CSS/Std_Profile.css
+│   │   ├── ./css/Student-CSS/Std_View_Exams.css
+│   │   └── ./css/Student-CSS/bootstrap_css
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap-grid.css
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap-grid.css.map
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap-grid.min.css
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap-grid.min.css.map
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap-reboot.css
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap-reboot.css.map
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap-reboot.min.css
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap-reboot.min.css.map
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap.css
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap.css.map
+│   │       ├── ./css/Student-CSS/bootstrap_css/bootstrap.min.css
+│   │       └── ./css/Student-CSS/bootstrap_css/bootstrap.min.css.map
+│   ├── ./css/alter.css
+│   ├── ./css/lecturerDashboard.css
+│   ├── ./css/login.css
+│   └── ./css/styles.css
+├── ./file_structure.txt
+├── ./html
+│   ├── ./html/admin
+│   │   ├── ./html/admin/adminDashboard.html
+│   │   ├── ./html/admin/adminStudentsDashboard.html
+│   │   ├── ./html/admin/adminSubjectsDashboard.html
+│   │   └── ./html/admin/adminlecturersDashboard.html
+│   ├── ./html/custom
+│   │   ├── ./html/custom/alterdata.html
+│   │   └── ./html/custom/login.html
+│   ├── ./html/lecturer
+│   │   ├── ./html/lecturer/Lect_Exam.html
+│   │   ├── ./html/lecturer/lecturerDashboard.html
+│   │   └── ./html/lecturer/lecturer_exam.html
+│   └── ./html/student
+│       ├── ./html/student/Std_Degree.html
+│       ├── ./html/student/Std_Exam.html
+│       ├── ./html/student/Std_Home.html
+│       ├── ./html/student/Std_Payment.html
+│       ├── ./html/student/Std_Profile.html
+│       └── ./html/student/Std_View_Exams.html
+├── ./index.html
+├── ./js
+│   ├── ./js/Student-js
+│   │   ├── ./js/Student-js/Std_Degree-js.txt
+│   │   ├── ./js/Student-js/Std_Degree.js
+│   │   ├── ./js/Student-js/Std_Exam.js
+│   │   ├── ./js/Student-js/Std_Payement.js
+│   │   ├── ./js/Student-js/Std_Profile.js
+│   │   ├── ./js/Student-js/Std_View_Exams.js
+│   │   └── ./js/Student-js/bootstrap_js
+│   │       ├── ./js/Student-js/bootstrap_js/bootstrap.bundle.js
+│   │       ├── ./js/Student-js/bootstrap_js/bootstrap.bundle.js.map
+│   │       ├── ./js/Student-js/bootstrap_js/bootstrap.bundle.min.js
+│   │       ├── ./js/Student-js/bootstrap_js/bootstrap.bundle.min.js.map
+│   │       ├── ./js/Student-js/bootstrap_js/bootstrap.js
+│   │       ├── ./js/Student-js/bootstrap_js/bootstrap.js.map
+│   │       ├── ./js/Student-js/bootstrap_js/bootstrap.min.js
+│   │       ├── ./js/Student-js/bootstrap_js/bootstrap.min.js.map
+│   │       ├── ./js/Student-js/bootstrap_js/jquery-3.5.1.min.js
+│   │       └── ./js/Student-js/bootstrap_js/popper.min.js
+│   ├── ./js/admin
+│   │   ├── ./js/admin/adminDashboard.js
+│   │   ├── ./js/admin/adminStudentsDashboard.js
+│   │   ├── ./js/admin/adminSubjectsDashboard.js
+│   │   └── ./js/admin/adminlecturersDashboard.js
+│   ├── ./js/custom
+│   │   ├── ./js/custom/alter.js
+│   │   └── ./js/custom/login.js
+│   └── ./js/lecturer
+│       ├── ./js/lecturer/Lect_Exam.js
+│       ├── ./js/lecturer/lecturerDashboard.js
+│       └── ./js/lecturer/lecturer_exams.js
+
+├── ./package-lock.json
+├── ./package.json
+└── ./static
+    └── ./static/admin
+        ├── ./static/admin/dollar-sign.png
+        ├── ./static/admin/img.png
+        ├── ./static/admin/img_1.png
+        ├── ./static/admin/img_2.png
+        ├── ./static/admin/login-background.jpg
+        └── ./static/admin/login.png
+
+620 directories, 2786 files
