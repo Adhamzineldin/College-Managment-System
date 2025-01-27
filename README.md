@@ -63,8 +63,8 @@ npm start
 ## Queries
 
 For any queries or issues, please contact:
- - [Adhamzineldin](https://github.com/Adhamzineldin).
- - [Ayman-Elfeky](https://github.com/Ayman-Elfeky).
+ - [Adhamzineldin](https://github.com/Adhamzineldin)
+ - [Ayman-Elfeky](https://github.com/Ayman-Elfeky)
 
 ## License
 
