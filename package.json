@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "backend/server.js",
   "scripts": {
-    "start": "nodemon backend/server.js",
+    "start": "node --import tsx backend/server.js",
+    "dev": "npx nodemon --exec \"node --import tsx\" backend/server.js",
+    "veld:generate": "veld generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +13,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@maayn/veld": "^0.2.4",
+    "@veld/client": "file:generated/client",
+    "@veld/generated": "file:generated",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "connect-sqlite3": "^0.9.15",
@@ -19,5 +24,11 @@
     "express-handlebars": "^8.0.1",
     "express-session": "^1.18.1",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.3",
+    "tsx": "^4.21.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }

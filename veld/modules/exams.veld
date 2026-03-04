@@ -1,0 +1,75 @@
+// Exams module — CRUD + student exam actions.
+
+import @models/exam
+import @models/common
+
+module Exams {
+  description: "Exam management"
+  prefix:      /api
+
+  action CreateExam {
+    description: "Create a new exam"
+    method:      POST
+    path:        /exam
+    input:       CreateExamInput
+    output:      IdResponse
+    errors:      [MissingFields]
+  }
+
+  action ListExams {
+    description: "List all exams"
+    method:      GET
+    path:        /exams
+    output:      ExamListResponse
+  }
+
+  action ListExamsBySubject {
+    description: "List exams by subject ID"
+    method:      GET
+    path:        /exams/:subject_id
+    output:      ExamListResponse
+  }
+
+  action GetExam {
+    description: "Get a single exam by ID"
+    method:      GET
+    path:        /exam/:id
+    output:      ExamDetailResponse
+    errors:      [NotFound]
+  }
+
+  action UpdateExam {
+    description: "Update an existing exam"
+    method:      PUT
+    path:        /exam/:id
+    input:       UpdateExamInput
+    output:      SuccessMessage
+    errors:      [NotFound, MissingFields]
+  }
+
+  action DeleteExam {
+    description: "Delete an exam by ID"
+    method:      DELETE
+    path:        /exam/:id
+    output:      SuccessMessage
+    errors:      [NotFound]
+  }
+
+  action AddStudentToExam {
+    description: "Add a student to exam participants"
+    method:      PUT
+    path:        /exam/:id/add-student
+    input:       AddStudentToExamInput
+    output:      SuccessMessage
+    errors:      [NotFound, AlreadyEntered]
+  }
+
+  action SubmitExam {
+    description: "Submit exam answers and grade"
+    method:      POST
+    path:        /exam/:id/submit
+    input:       SubmitExamInput
+    output:      SuccessMessage
+    errors:      [NotFound]
+  }
+}

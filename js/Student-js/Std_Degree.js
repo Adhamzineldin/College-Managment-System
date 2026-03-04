@@ -3,23 +3,15 @@ function goBack() {
     window.location.href = "Std_Profile.html";
 }
 
-const apiUrl = window.location.hostname === "localhost"
-  ? "http://localhost:5000"  // Local development
-  : "https://app5000.maayn.me";
-
-// Fetch subjects from backend API (running on localhost:5000)
+// Fetch subjects from backend using Veld client
 async function fetchSubjects() {
     try {
-        const response = await fetch(`${apiUrl}/api/subjects`); // URL to fetch subjects from backend
-        if (!response.ok) {
-            throw new Error('Error fetching subjects');
-        }
-        const data = await response.json();
+        const data = await veld.Subjects.listSubjects();
 
         // Get the current user and their subjectsId from localStorage
-        const currentUser = JSON.parse(localStorage.getItem('currentUser')); // Assuming currentUser is stored as an object in localStorage
-        const subjectsId = currentUser ? currentUser.subjects : []; // Default to empty array if no subjects
-        const studentId = currentUser ? currentUser.id : null; // Get the student ID for comparison
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const subjectsId = currentUser ? currentUser.subjects : [];
+        const studentId = currentUser ? currentUser.id : null;
         console.log('subjectsId', subjectsId);
 
         // Filter the subjects to match the subjectsId from localStorage
@@ -27,69 +19,65 @@ async function fetchSubjects() {
 
         for (const subject of filteredSubjects) {
             console.log('subject', subject);
-            const subjectExamsResponse = await fetch(`${apiUrl}/api/exams/${subject.id}`);
-            const exams = await subjectExamsResponse.json();
+            const examsData = await veld.Exams.listExamsBySubject(subject.id);
+            const exams = examsData.exams;
             console.log('exams', exams);
 
             let totalGrade = 0;
             let gradeCount = 0;
 
+            exams.forEach(exam => {
+                const gradesString = exam.grades || "";
+                if (!gradesString) return;
 
-            exams.exams.forEach(exam => {
-
-
-                const gradesString = exam.grades || ""; // Ensure it's a valid string
-                if (!gradesString) return; // Skip if no grades string
-
-                // Trim the braces and split the string into grade entries
                 const gradesArray = gradesString.slice(1, -1).split(";").map(entry => entry.trim());
                 const gradesObject = {};
 
                 gradesArray.forEach(entry => {
                     const [sid, grade] = entry.split(":").map(str => str.trim());
                     if (sid && grade) {
-                        gradesObject[sid] = parseFloat(grade); // Convert grade to a number
+                        gradesObject[sid] = parseFloat(grade);
                     }
                 });
 
-                // Check if the student has a grade for this exam
                 const studentGrade = gradesObject[studentId];
 
                 if (studentGrade !== undefined) {
                     totalGrade += studentGrade;
                 } else {
-                    totalGrade += 0; // Default to 0 if no grade is found
+                    totalGrade += 0;
                 }
                 gradeCount++;
             });
 
-            // Calculate the average grade
             const averageGrade = gradeCount > 0 ? (totalGrade / gradeCount).toFixed(0) : "No grades";
             subject.averageGrade = averageGrade;
         }
 
-
-        // Render the subjects in the table if there are any filtered subjects
         if (filteredSubjects.length > 0) {
-            renderTable(filteredSubjects); // Render matching subjects
+            renderTable(filteredSubjects);
         } else {
             alert('No matching subjects found for the current user.');
         }
     } catch (error) {
-        console.error(error);
-        alert('Failed to load subjects');
+        if (veld.isErrorCode(error, veld.Subjects.errors.getSubject.notFound)) {
+            alert('Subject not found.');
+        } else {
+            console.error(error);
+            alert('Failed to load subjects');
+        }
     }
 }
 
 // Render subjects into the table
 function renderTable(subjects) {
     const tbody = document.querySelector("#degrees-table tbody");
-    tbody.innerHTML = ""; // Clear existing rows
+    tbody.innerHTML = "";
     subjects.forEach(subject => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${subject.name}</td>
-            <td>${subject.averageGrade}</td> <!-- Assuming degree is part of subject, otherwise you'll need a separate API call to get it -->
+            <td>${subject.averageGrade}</td>
         `;
         tbody.appendChild(tr);
     });

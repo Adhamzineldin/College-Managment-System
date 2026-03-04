@@ -1,0 +1,14 @@
+// Authentication request and response models.
+
+import @models/user
+
+model LoginInput {
+  description: "Credentials for user login (by ID and password)"
+  id:       string
+  password: string
+}
+
+model LoginResponse {
+  description: "Response after successful authentication"
+  user: Account
+}

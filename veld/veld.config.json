@@ -1,0 +1,12 @@
+{
+  "input": "app.veld",
+  "backend": "node",
+  "frontend": "typescript",
+  "out": "../generated",
+  "backendDir": "../backend",
+  "frontendDir": "",
+  "aliases": {
+    "models": "models",
+    "modules": "modules"
+  }
+}

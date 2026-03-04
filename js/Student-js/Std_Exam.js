@@ -3,25 +3,19 @@ const goBack = () => {
     window.location.href='./Std_View_Exams.html';
 }
 
-
-const apiUrl = window.location.hostname === "localhost"
-  ? "http://localhost:5000"  // Local development
-  : "https://app5000.maayn.me";
 let timerInterval;
 
 // Fetch and render the exam with the student ID
 async function fetchExam(examId, studentId) {
-
     try {
-        const response = await fetch(`${apiUrl}/api/exam/${examId}`);
-        let examData = await response.json();
+        let examData = await veld.Exams.getExam(examId);
         console.log(examData);
 
         // Check if the student has already entered the exam
-        const enteredIds = examData.entredID ? examData.entredID.split(";").map(id => id.slice(1, -1)) : [];
+        const enteredIds = examData.entredID ? examData.entredID.split(";").map(id => id.replace(/{|}/g, '').trim()).filter(Boolean) : [];
         if (enteredIds.includes(studentId)) {
             alert("You have already entered this exam.");
-            window.location.href = "STD_Profile.html"; // Redirect to profile if already entered
+            window.location.href = "STD_Profile.html";
             return;
         }
 
@@ -30,7 +24,7 @@ async function fetchExam(examId, studentId) {
 
         // Render questions
         const questionsContainer = document.getElementById("questions-container");
-        questionsContainer.innerHTML = ""; // Clear existing questions
+        questionsContainer.innerHTML = "";
 
         examData.questions.forEach((question, index) => {
             const questionBlock = document.createElement("div");
@@ -44,7 +38,7 @@ async function fetchExam(examId, studentId) {
             questionsContainer.appendChild(questionBlock);
         });
 
-        // Add student to the list of participants
+        // Add student to the list of participants via Veld client
         await addStudentToExam(examId, studentId);
 
         // Start the timer
@@ -53,14 +47,18 @@ async function fetchExam(examId, studentId) {
         // Submit event
         document.getElementById("submit-exam").onclick = () => submitExam(examId, examData.questions, studentId);
     } catch (error) {
-        console.error("Error fetching exam:", error.message);
+        if (veld.isErrorCode(error, veld.Exams.errors.getExam.notFound)) {
+            alert("Exam not found.");
+        } else {
+            console.error("Error fetching exam:", error.message);
+        }
     }
 }
 
 // Timer function
 function startTimer(duration) {
     const timerElement = document.getElementById("timer");
-    let remainingTime = duration * 60; // Convert minutes to seconds
+    let remainingTime = duration * 60;
 
     timerInterval = setInterval(() => {
         const minutes = Math.floor(remainingTime / 60);
@@ -70,36 +68,32 @@ function startTimer(duration) {
         if (remainingTime <= 0) {
             clearInterval(timerInterval);
             alert("Time is up! Submitting your exam.");
-            document.getElementById("submit-exam").click(); // Auto-submit when time expires
+            document.getElementById("submit-exam").click();
         }
 
         remainingTime--;
     }, 1000);
 }
 
-// Add student to exam participants
+// Add student to exam participants via Veld client
 async function addStudentToExam(examId, studentId) {
     try {
-        const response = await fetch(`${apiUrl}/api/exam/${examId}/add-student`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ studentId }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Failed to add student:", errorData.message);
+        await veld.Exams.addStudentToExam(examId, { studentId });
+    } catch (error) {
+        if (veld.isErrorCode(error, veld.Exams.errors.addStudentToExam.alreadyEntered)) {
+            console.warn("Student already entered this exam.");
+        } else if (veld.isErrorCode(error, veld.Exams.errors.addStudentToExam.notFound)) {
+            alert("Exam not found. Cannot add participant.");
+        } else {
+            console.error("Error adding student to exam:", error.message);
             alert("Error adding you to the exam. Please try again.");
         }
-    } catch (error) {
-        console.error("Error adding student to exam:", error.message);
-        alert("Network error. Please try again later.");
     }
 }
 
-// Submit exam answers
+// Submit exam answers via Veld client
 async function submitExam(examId, questions, studentId) {
-    clearInterval(timerInterval); // Stop the timer
+    clearInterval(timerInterval);
 
     const answers = questions.map((_, index) => ({
         question: questions[index],
@@ -107,10 +101,9 @@ async function submitExam(examId, questions, studentId) {
     }));
 
     try {
-        // Fetch the exam data to get the model answers
-        const examResponse = await fetch(`${apiUrl}/api/exam/${examId}`);
-        const examData = await examResponse.json();
-        const modelAnswers = examData.answers; // Assuming `answers` contains the correct answers
+        // Fetch exam data to get model answers
+        const examData = await veld.Exams.getExam(examId);
+        const modelAnswers = examData.answers;
 
         if (!modelAnswers || modelAnswers.length !== questions.length) {
             alert("Error: Model answers are missing or mismatched.");
@@ -121,34 +114,31 @@ async function submitExam(examId, questions, studentId) {
         let grade = 0;
         answers.forEach((ans, index) => {
             if (ans.answer.toLowerCase() === modelAnswers[index][0].toLowerCase()) {
-                grade += 100 / questions.length; // Divide total score by the number of questions
+                grade += 100 / questions.length;
             }
         });
 
-        // Send the submission with the calculated grade
-        const response = await fetch(`${apiUrl}/api/exam/${examId}/submit`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ studentId, answers, grade: Math.round(grade) }),
+        // Submit via Veld client
+        await veld.Exams.submitExam(examId, {
+            studentId,
+            answers: JSON.stringify(answers),
+            grade: Math.round(grade),
         });
 
-        if (response.ok) {
-            alert("Exam submitted successfully! Your grade: " + Math.round(grade));
-            window.location.href = "STD_Profile.html"; // Redirect back to the profile page
-        } else {
-            const errorData = await response.json();
-            console.error("Submission failed:", errorData.message);
-            alert("There was an error submitting your exam. Please try again.");
-        }
+        alert("Exam submitted successfully! Your grade: " + Math.round(grade));
+        window.location.href = "STD_Profile.html";
     } catch (error) {
-        console.error("Error submitting exam:", error.message);
-        alert("Network error. Please try again later.");
+        if (veld.isErrorCode(error, veld.Exams.errors.submitExam.notFound)) {
+            alert("Exam not found. Cannot submit.");
+        } else {
+            console.error("Error submitting exam:", error.message);
+            alert("Network error. Please try again later.");
+        }
     }
 }
 
-// Initialize exam with example values
-const examId =  localStorage.getItem("examId");
-const studentId =  JSON.parse(localStorage.getItem("currentUser")).id;
-
+// Initialize exam
+const examId = localStorage.getItem("examId");
+const studentId = JSON.parse(localStorage.getItem("currentUser")).id;
 
 fetchExam(examId, studentId);

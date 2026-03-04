@@ -1,68 +1,47 @@
+# My Veld Project
 
-# College Management System
+## Structure
 
-This is a College Management System designed to streamline the management of students, lecturers, and administrative tasks for a college. It supports multiple roles, including students, lecturers, and administrators. Each role has its own dashboard to manage specific tasks such as exams, subjects, payments, and profiles.
+| Path | Purpose |
+|------|--------|
+| `veld/` | Contract source — models, modules, config |
+| `veld/models/` | Data type definitions (models, enums) |
+| `veld/modules/` | API endpoint definitions |
+| `generated/` | Auto-generated code — do not edit |
 
-## Features
+## Import System
 
-- **Admin Dashboard**: Manage students, lecturers, and subjects.
-- **Lecturer Dashboard**: Manage exams and lecture-related tasks.
-- **Student Dashboard**: Manage student details, exams, degree, and payments.
-- **Authentication**: Login system with role-based access.
-- **Responsive Design**: Optimized for different screen sizes.
+Every file must explicitly import the files that define the types it uses:
 
-## Project Structure
-
-The project follows a modular folder structure:
-
-```
-.
-├── ./.idea                 # IDE configuration files
-├── ./Diagrams              # Project diagrams (UML, flowcharts, etc.)
-├── ./backend               # Backend code (server, database)
-├── ./css                    # Stylesheets (CSS files)
-├── ./html                   # HTML pages for different user roles (admin, lecturer, student)
-├── ./index.html             # Landing page
-├── ./js                     # JavaScript code for different pages and roles
-├── ./static                 # Static assets like images and icons
-├── ./package.json           # Project dependencies and metadata
-└── ./package-lock.json      # Dependency lock file
+```veld
+// veld/app.veld — imports modules
+import @modules/users
+import @modules/auth
 ```
 
-## Installation
+```veld
+// veld/modules/users.veld — imports its own models
+import @models/user
+import @models/common
 
-1. Clone the repository:
-
-```bash
-git clone https://github.com/Ayman-Elfeky/College-Managment-System.git
+module Users { ... }
 ```
 
-2. Navigate to the project directory:
+Import paths don't include `.veld` — the parser adds it automatically.
 
-```bash
-cd College-Managment-System
-```
+## Middleware
 
-3. Install dependencies:
+Middleware names (like `RequireAuth`, `RateLimit`) are just labels in the contract.
+Veld generates typed middleware interfaces — you provide the implementations
+when registering routes in your app.
 
-```bash
-npm install
-```
+## Commands
 
-4. Start the development server:
-
-```bash
-npm start
-```
-
-## Contributors
-
-- [Adhamzineldin](https://github.com/Adhamzineldin)
-- [Ayman-Elfeky](https://github.com/Ayman-Elfeky)
-
-## Queries
-
-For any queries or issues, please contact:
- - [Adhamzineldin](https://github.com/Adhamzineldin)
- - [Ayman-Elfeky](https://github.com/Ayman-Elfeky)
-
+| Command | Description |
+|---------|-------------|
+| `veld generate` | Generate typed code |
+| `veld validate` | Check contract for errors |
+| `veld watch` | Auto-regenerate on file save |
+| `veld clean` | Remove generated output |
+| `veld openapi` | Export OpenAPI 3.0 spec |
+| `veld ast` | Dump AST JSON for debugging |

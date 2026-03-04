@@ -1,7 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const apiUrl = window.location.hostname === "localhost"
-  ? "http://localhost:5000"  // Local development
-  : "https://app5000.maayn.me";
     const examsList = document.getElementById("examsList");
     const addExamButton = document.getElementById("addExamButton");
     const examSection = document.getElementById("examSection");
@@ -10,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const generateReportButton = document.getElementById("generateReport");
     const reportSection = document.getElementById("reportSection");
 
-    let currentExamId = null;  // Tracks the exam being edited
+    let currentExamId = null;
 
     // Add Question Button
     const addQuestionButton = document.getElementById("addQuestionButton");
@@ -22,18 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addExamButton.addEventListener("click", () => openExamSection());
 
-    // Fetch exams
+    // Fetch exams using Veld client
     async function fetchExams() {
         try {
-            const response = await fetch(`${apiUrl}/api/exams`);
-            const data = await response.json();
+            const data = await veld.Exams.listExams();
             examsList.innerHTML = "";
             data.exams.forEach(exam => {
                 const li = document.createElement("li");
                 li.className = "list-group-item d-flex justify-content-between align-items-center";
-                li.textContent = `${exam.name} - ${exam.date}`;
+                li.textContent = `${exam.name} - ${exam.examDate}`;
 
-                // Edit and Delete buttons
                 const editButton = document.createElement("button");
                 editButton.className = "btn btn-warning btn-sm";
                 editButton.textContent = "Edit";
@@ -61,25 +56,23 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             currentExamId = null;
             examForm.reset();
-            questionsList.innerHTML = "";  // Reset questions list
-            answersList.innerHTML = "";    // Reset answers list
+            questionsList.innerHTML = "";
+            answersList.innerHTML = "";
             document.getElementById("examSectionTitle").textContent = "Add Exam";
             saveExamButton.textContent = "Save Exam";
         }
-        examSection.style.display = 'block'; // Show exam section
+        examSection.style.display = 'block';
     }
 
-    // Fetch exam by ID
+    // Fetch exam by ID using Veld client
     async function fetchExamById(examId) {
         try {
-            const response = await fetch(`${apiUrl}/api/exam/${examId}`);
-            const exam = await response.json();
+            const exam = await veld.Exams.getExam(examId);
             document.getElementById("examTitle").value = exam.name;
             document.getElementById("examDuration").value = exam.duration;
-            document.getElementById("examDate").value = exam.date;
+            document.getElementById("examDate").value = exam.examDate;
             document.getElementById("examMarks").value = exam.total_marks;
 
-            // Populate questions and answers
             questionsList.innerHTML = "";
             answersList.innerHTML = "";
             exam.questions.forEach((question, index) => {
@@ -136,35 +129,30 @@ document.addEventListener("DOMContentLoaded", () => {
         answersList.appendChild(div);
     }
 
-    // Delete a question
     function deleteQuestion(index) {
         const questionDiv = document.getElementById(`question_${index}`);
         questionDiv.remove();
     }
 
-    // Delete an answer
     function deleteAnswer(index) {
         const answerDiv = document.getElementById(`answer_${index}`);
         answerDiv.remove();
     }
 
-    // Add Question event listener
     addQuestionButton.addEventListener("click", () => {
         const questionCount = questionsList.getElementsByClassName("question-item").length;
         addQuestionToList("", questionCount);
     });
 
-    // Add Answer event listener
     addAnswerButton.addEventListener("click", () => {
         const answerCount = answersList.getElementsByClassName("answer-item").length;
         addAnswerToList("", answerCount);
     });
 
-    // Save or Update exam
+    // Save or Update exam using Veld client
     saveExamButton.addEventListener("click", async (e) => {
         e.preventDefault();
 
-        // Gather questions and answers
         const questions = [];
         const questionInputs = questionsList.getElementsByClassName("question-item");
         for (let input of questionInputs) {
@@ -179,43 +167,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const examData = {
             name: document.getElementById("examTitle").value,
-            duration: document.getElementById("examDuration").value,
-            date: document.getElementById("examDate").value,
-            total_marks: document.getElementById("examMarks").value,
-            questions: questions,
-            answers: answers
+            duration: parseInt(document.getElementById("examDuration").value),
+            examDate: document.getElementById("examDate").value,
+            total_marks: parseInt(document.getElementById("examMarks").value),
+            subject_id: "",
+            questions: questions.join(";"),
+            answers: answers.join(";"),
         };
 
         try {
             if (currentExamId) {
-                // Update exam
-                await fetch(`${apiUrl}/api/exam/${currentExamId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(examData)
-                });
+                await veld.Exams.updateExam(currentExamId, examData);
                 alert("Exam updated successfully!");
             } else {
-                // Add new exam
-                await fetch(`${apiUrl}/api/exam`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(examData)
-                });
+                await veld.Exams.createExam(examData);
                 alert("Exam added successfully!");
             }
             fetchExams();
-            examSection.style.display = 'none'; // Hide exam section after saving
+            examSection.style.display = 'none';
         } catch (error) {
             console.error("Error saving exam:", error);
         }
     });
 
-    // Delete exam
+    // Delete exam using Veld client
     async function deleteExam(examId) {
         if (confirm("Are you sure you want to delete this exam?")) {
             try {
-                await fetch(`${apiUrl}/api/exam/${examId}`, { method: "DELETE" });
+                await veld.Exams.deleteExam(examId);
                 alert("Exam deleted successfully!");
                 fetchExams();
             } catch (error) {

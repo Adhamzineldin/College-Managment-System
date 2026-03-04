@@ -1,0 +1,42 @@
+// Lecturers module — CRUD endpoints for lecturer management.
+
+import @models/user
+import @models/common
+
+module Lecturers {
+  description: "Lecturer management"
+  prefix:      /api
+
+  action ListLecturers {
+    description: "List all lecturers"
+    method:      GET
+    path:        /lecturers
+    output:      LecturerListResponse
+  }
+
+  action GetLecturer {
+    description: "Get a single lecturer by ID"
+    method:      GET
+    path:        /lecturer/:id
+    output:      Account
+    errors:      [NotFound]
+  }
+
+  action UpdateLecturer {
+    description: "Update a lecturer by ID"
+    method:      PUT
+    path:        /lecturer/:id
+    input:       UpdateAccountInput
+    output:      SuccessMessage
+    errors:      [MissingFields, NotFound]
+  }
+
+  action DeleteLecturer {
+    description: "Delete a lecturer by ID"
+    method:      DELETE
+    path:        /lecturer/:id
+    output:      SuccessMessage
+    errors:      [NotFound]
+  }
+}
+

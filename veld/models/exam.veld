@@ -1,0 +1,72 @@
+// Exam domain models.
+
+model Exam {
+  description: "An exam associated with a subject"
+  id:          string
+  subject_id:  string
+  name:        string
+  examDate:    string
+  duration:    int
+  total_marks: int
+  questions?:  string
+  answers?:    string
+  entredID?:   string
+  grades?:     string
+}
+
+model CreateExamInput {
+  description: "Data to create a new exam"
+  subject_id:  string
+  name:        string
+  examDate:    string
+  duration:    int
+  total_marks: int
+  questions?:  string
+  answers?:    string
+}
+
+model UpdateExamInput {
+  description: "Data to update an existing exam"
+  subject_id:  string
+  name:        string
+  examDate:    string
+  duration:    int
+  total_marks: int
+  questions?:  string
+  answers?:    string
+  entredID?:   string
+  grades?:     string
+}
+
+model ExamListResponse {
+  description: "Wrapper for list of exams"
+  exams: Exam[]
+}
+
+model ExamDetailResponse {
+  description: "Detailed exam response with parsed questions and answers"
+  id:          string
+  subject_id:  string
+  name:        string
+  examDate:    string
+  duration:    int
+  total_marks: int
+  questions:   string[]
+  answers:     string[]
+  entredID?:   string
+  grades?:     string
+}
+
+model AddStudentToExamInput {
+  description: "Add a student to exam participants"
+  studentId: string
+}
+
+model SubmitExamInput {
+  description: "Submit exam answers and grade"
+  studentId: string
+  answers:   string
+  grade:     int
+}
+
+

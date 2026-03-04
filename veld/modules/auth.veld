@@ -1,0 +1,18 @@
+// Auth module — authentication endpoint.
+
+import @models/auth
+import @models/common
+
+module Auth {
+  description: "Authentication"
+  prefix:      /api
+
+  action Authenticate {
+    description: "Log in with ID and password"
+    method:      POST
+    path:        /authenticate
+    input:       LoginInput
+    output:      LoginResponse
+    errors:      [InvalidCredentials, MissingFields]
+  }
+}

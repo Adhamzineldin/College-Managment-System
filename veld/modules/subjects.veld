@@ -1,0 +1,42 @@
+// Subjects module — CRUD endpoints for subject management.
+
+import @models/subject
+import @models/common
+
+module Subjects {
+  description: "Subject management"
+  prefix:      /api
+
+  action ListSubjects {
+    description: "List all subjects"
+    method:      GET
+    path:        /subjects
+    output:      SubjectListResponse
+  }
+
+  action GetSubject {
+    description: "Get a single subject by ID"
+    method:      GET
+    path:        /subject/:id
+    output:      Subject
+    errors:      [NotFound]
+  }
+
+  action SaveSubject {
+    description: "Add or update a subject"
+    method:      POST
+    path:        /subject
+    input:       CreateSubjectInput
+    output:      SuccessMessage
+    errors:      [MissingFields]
+  }
+
+  action DeleteSubject {
+    description: "Delete a subject by ID"
+    method:      DELETE
+    path:        /subject/:id
+    output:      SuccessMessage
+    errors:      [NotFound]
+  }
+}
+

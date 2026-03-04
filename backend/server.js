@@ -3,13 +3,28 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
 
+// Import Veld-generated route registrars
+const { authRouter } = require('../generated/routes/auth.routes');
+const { usersRouter } = require('../generated/routes/users.routes');
+const { studentsRouter } = require('../generated/routes/students.routes');
+const { lecturersRouter } = require('../generated/routes/lecturers.routes');
+const { subjectsRouter } = require('../generated/routes/subjects.routes');
+const { examsRouter } = require('../generated/routes/exams.routes');
+
+// Import Veld-generated error factories
+const { authErrors } = require('../generated/errors/auth.errors');
+const { usersErrors } = require('../generated/errors/users.errors');
+const { studentsErrors } = require('../generated/errors/students.errors');
+const { lecturersErrors } = require('../generated/errors/lecturers.errors');
+const { subjectsErrors } = require('../generated/errors/subjects.errors');
+const { examsErrors } = require('../generated/errors/exams.errors');
+
 const app = express();
 const PORT = 5000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-
 
 // Initialize SQLite database
 const db = new sqlite3.Database('./backend/users.db', (err) => {
@@ -26,15 +41,12 @@ const db = new sqlite3.Database('./backend/users.db', (err) => {
                 name TEXT NOT NULL,
                 password TEXT NOT NULL,
                 role TEXT NOT NULL,
-                subjects TEXT NOT NULL, -- Store subject IDs as a JSON string
-                finalGrade REAL NOT NULL 
+                subjects TEXT NOT NULL,
+                finalGrade REAL NOT NULL
             )`,
             (err) => {
-                if (err) {
-                    console.error('Error creating accounts table:', err.message);
-                } else {
-                    console.log('Accounts table created or already exists.');
-                }
+                if (err) console.error('Error creating accounts table:', err.message);
+                else console.log('Accounts table created or already exists.');
             }
         );
 
@@ -45,14 +57,12 @@ const db = new sqlite3.Database('./backend/users.db', (err) => {
                 name TEXT NOT NULL
             )`,
             (err) => {
-                if (err) {
-                    console.error('Error creating subjects table:', err.message);
-                } else {
-                    console.log('Subjects table created or already exists.');
-                }
+                if (err) console.error('Error creating subjects table:', err.message);
+                else console.log('Subjects table created or already exists.');
             }
         );
 
+        // Create exams table if it doesn't exist
         db.run(
             `CREATE TABLE IF NOT EXISTS exams (
                 id TEXT PRIMARY KEY,
@@ -66,16 +76,13 @@ const db = new sqlite3.Database('./backend/users.db', (err) => {
                 entredID TEXT,
                 grades TEXT,
                 FOREIGN KEY (subject_id) REFERENCES subjects(id)
-            )`, (err) => {
-                if (err) {
-                    console.error('Error creating exams table:', err.message);
-                }
+            )`,
+            (err) => {
+                if (err) console.error('Error creating exams table:', err.message);
             }
         );
 
-
-
-        // Insert dummy subjects only if the subjects table is empty
+        // Seed dummy subjects if empty
         db.get('SELECT COUNT(*) AS count FROM subjects', (err, row) => {
             if (err) {
                 console.error('Error checking subjects table:', err.message);
@@ -88,67 +95,32 @@ const db = new sqlite3.Database('./backend/users.db', (err) => {
                     { id: 'BIO101', name: 'Biology' },
                     { id: 'ENG101', name: 'English Literature' }
                 ];
-
                 dummySubjects.forEach(subject => {
-                    const query = `INSERT INTO subjects (id, name) VALUES (?, ?)`;
-                    db.run(query, [subject.id, subject.name], (err) => {
-                        if (err) {
-                            console.error('Error inserting subject:', err.message);
-                        } else {
-                            console.log(`Subject added: ${subject.name}`);
-                        }
+                    db.run(`INSERT INTO subjects (id, name) VALUES (?, ?)`, [subject.id, subject.name], (err) => {
+                        if (err) console.error('Error inserting subject:', err.message);
+                        else console.log(`Subject added: ${subject.name}`);
                     });
                 });
             }
         });
 
-        // Insert default users (Admin, Lecturer, Student) only if the accounts table is empty
+        // Seed default users if empty
         db.get('SELECT COUNT(*) AS count FROM accounts', (err, row) => {
             if (err) {
                 console.error('Error checking accounts table:', err.message);
             } else if (row.count === 0) {
                 const users = [
-                    {
-                        email: 'admin@example.com',
-                        id: '20230001',
-                        name: 'Admin User',
-                        password: 'admin123',
-                        role: 'admin',
-                        subjects: ['CS101', 'CS102'],
-                        finalGrade: 100
-                    },
-                    {
-                        email: 'lecturer@example.com',
-                        id: '20230002',
-                        name: 'Lecturer User',
-                        password: 'lecturer123',
-                        role: 'lecturer',
-                        subjects: ['CS101', 'CS102'],
-                        finalGrade: 90
-                    },
-                    {
-                        email: 'student@example.com',
-                        id: '20230003',
-                        name: 'Student User',
-                        password: 'student123',
-                        role: 'student',
-                        subjects: ['MATH101', 'PHYS101'],
-                        finalGrade: 80
-                    }
+                    { email: 'admin@example.com', id: '20230001', name: 'Admin User', password: 'admin123', role: 'admin', subjects: ['CS101', 'CS102'], finalGrade: 100 },
+                    { email: 'lecturer@example.com', id: '20230002', name: 'Lecturer User', password: 'lecturer123', role: 'lecturer', subjects: ['CS101', 'CS102'], finalGrade: 90 },
+                    { email: 'student@example.com', id: '20230003', name: 'Student User', password: 'student123', role: 'student', subjects: ['MATH101', 'PHYS101'], finalGrade: 80 }
                 ];
-
-                // Insert users into the database
                 users.forEach(user => {
-                    const query = `INSERT INTO accounts (email, id, name, password, role, subjects, finalGrade) VALUES (?, ?, ?, ?, ?, ?, ?)`;
                     db.run(
-                        query,
+                        `INSERT INTO accounts (email, id, name, password, role, subjects, finalGrade) VALUES (?, ?, ?, ?, ?, ?, ?)`,
                         [user.email, user.id, user.name, user.password, user.role, JSON.stringify(user.subjects), user.finalGrade],
                         (err) => {
-                            if (err) {
-                                console.error('Error inserting user:', err.message);
-                            } else {
-                                console.log(`User ${user.role} added: ${user.name}`);
-                            }
+                            if (err) console.error('Error inserting user:', err.message);
+                            else console.log(`User ${user.role} added: ${user.name}`);
                         }
                     );
                 });
@@ -157,522 +129,272 @@ const db = new sqlite3.Database('./backend/users.db', (err) => {
     }
 });
 
-const generateId = () => {
-    const id = Date.now().toString().slice(-8); // Get last 8 digits of the timestamp
-    return id;
+// ─── Helpers ─────────────────────────────────────────────────────────
+const generateId = () => Date.now().toString().slice(-8);
+const generateSubjectId = () => `SUB${Date.now().toString().slice(-6)}`;
+
+// Helper: promisify db.all / db.get / db.run
+const dbAll = (sql, params = []) => new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows));
+});
+const dbGet = (sql, params = []) => new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
+});
+const dbRun = (sql, params = []) => new Promise((resolve, reject) => {
+    db.run(sql, params, function (err) { err ? reject(err) : resolve(this); });
+});
+
+
+// ─── Service Implementations (Veld interfaces) ──────────────────────
+
+/** @type {import('../generated/interfaces/IAuthService').IAuthService} */
+const authService = {
+    async authenticate(input) {
+        const { id, password } = input;
+        if (!id || !password) throw authErrors.authenticate.missingFields('ID and Password are required.');
+
+        const user = await dbGet(`SELECT * FROM accounts WHERE id = ? AND password = ?`, [id, password]);
+        if (!user) throw authErrors.authenticate.invalidCredentials('Invalid ID or Password.');
+
+        user.subjects = JSON.parse(user.subjects);
+        return { user };
+    }
 };
 
+/** @type {import('../generated/interfaces/IUsersService').IUsersService} */
+const usersService = {
+    async addUser(input) {
+        const { email, name, password, role, subjects } = input;
+        let finalGrade = input.finalGrade;
+        if (finalGrade === undefined) finalGrade = 100;
 
+        if (!email || !name || !password || !role || !subjects) {
+            throw usersErrors.addUser.missingFields('All fields are required.');
+        }
 
+        const id = generateId();
+        await dbRun(
+            `INSERT INTO accounts (email, id, name, password, role, subjects, finalGrade) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [email, id, name, password, role, JSON.stringify(subjects), finalGrade]
+        );
+        return { message: 'User added successfully.', id };
+    },
 
-// Add user route (for testing purposes)
-app.post('/api/add-user', (req, res) => {
-    const { email, name, password, role, subjects } = req.body;
+    async updateUser(id, input) {
+        const { email, name, password, role, subjects, finalGrade } = input;
+        if (!email || !name || !password || !role || !subjects || !id) {
+            throw usersErrors.updateUser.missingFields('All fields are required, including the user ID.');
+        }
 
-    let finalGrade = req.body.finalGrade;
-    if (finalGrade === undefined) {
-        finalGrade = 100;
+        const subjectsJson = Array.isArray(subjects) ? JSON.stringify(subjects) : subjects;
+        const finalGradeToUpdate = finalGrade || 100;
+
+        const result = await dbRun(
+            `UPDATE accounts SET email = ?, name = ?, password = ?, role = ?, subjects = ?, finalGrade = ? WHERE id = ?`,
+            [email, name, password, role, subjectsJson, finalGradeToUpdate, id]
+        );
+
+        if (result.changes === 0) throw usersErrors.updateUser.notFound('User not found.');
+        return { message: 'User updated successfully.' };
     }
+};
 
-    if (!email || !name || !password || !role || !subjects) {
-        return res.status(400).json({ message: 'All fields are required.' });
+/** @type {import('../generated/interfaces/IStudentsService').IStudentsService} */
+const studentsService = {
+    async listStudents() {
+        const rows = await dbAll(`SELECT * FROM accounts WHERE role = 'student'`);
+        rows.forEach(row => { row.subjects = JSON.parse(row.subjects); });
+        return { students: rows };
+    },
+
+    async getStudent(id) {
+        const row = await dbGet(`SELECT * FROM accounts WHERE id = ? AND role = 'student'`, [id]);
+        if (!row) throw studentsErrors.getStudent.notFound('Student not found.');
+        row.subjects = JSON.parse(row.subjects);
+        return row;
+    },
+
+    async updateStudent(id, input) {
+        const { email, name, password, role, subjects } = input;
+        let finalGrade = input.finalGrade;
+        if (finalGrade === undefined) finalGrade = 100;
+
+        if (!id || !email || !name || !password || !role || !subjects) {
+            throw studentsErrors.updateStudent.missingFields('All fields are required, including the student ID.');
+        }
+
+        const subjectsJson = Array.isArray(subjects) ? JSON.stringify(subjects) : subjects;
+
+        const result = await dbRun(
+            `UPDATE accounts SET email = ?, name = ?, password = ?, role = ?, subjects = ?, finalGrade = ? WHERE id = ?`,
+            [email, name, password, role, subjectsJson, finalGrade, id]
+        );
+        if (result.changes === 0) throw studentsErrors.updateStudent.notFound('Student not found.');
+        return { message: 'Student updated successfully.' };
+    },
+
+    async deleteStudent(id) {
+        await dbRun(`DELETE FROM accounts WHERE id = ?`, [id]);
+        return { message: 'Student deleted successfully.' };
     }
+};
 
-    const id = generateId(); // Generate the unique ID
+/** @type {import('../generated/interfaces/ILecturersService').ILecturersService} */
+const lecturersService = {
+    async listLecturers() {
+        const rows = await dbAll(`SELECT * FROM accounts WHERE role = 'lecturer'`);
+        rows.forEach(row => { row.subjects = JSON.parse(row.subjects); });
+        return { lecturers: rows };
+    },
 
-    const query = `INSERT INTO accounts (email, id, name, password, role, subjects, finalGrade) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    db.run(
-        query,
-        [email, id, name, password, role, JSON.stringify(subjects), finalGrade],
-        (err) => {
-            if (err) {
-                console.error('Error inserting user:', err.message);
-                return res.status(500).json({ message: 'Error adding user to the database.' });
-            }
-            return res.status(200).json({ message: 'User added successfully.', id });
+    async getLecturer(id) {
+        const row = await dbGet(`SELECT * FROM accounts WHERE id = ? AND role = 'lecturer'`, [id]);
+        if (!row) throw lecturersErrors.getLecturer.notFound('Lecturer not found.');
+        row.subjects = JSON.parse(row.subjects);
+        return row;
+    },
+
+    async updateLecturer(id, input) {
+        const { email, name, password, role, subjects } = input;
+        let finalGrade = input.finalGrade;
+        if (finalGrade === undefined) finalGrade = 100;
+
+        if (!id || !email || !name || !password || !role || !subjects) {
+            throw lecturersErrors.updateLecturer.missingFields('All fields are required, including the lecturer ID.');
         }
-    );
-});
 
-// Update user route
-app.put('/api/updateUser/:id', (req, res) => {
-    const userId = req.params.id;  // Get the user ID from the URL parameter
-    const { email, name, password, role, subjects, finalGrade } = req.body;
+        const subjectsJson = Array.isArray(subjects) ? JSON.stringify(subjects) : subjects;
 
-    // Validate input data
-    if (!email || !name || !password || !role || !subjects || !userId) {
-        return res.status(400).json({ message: 'All fields are required, including the user ID.' });
+        const result = await dbRun(
+            `UPDATE accounts SET email = ?, name = ?, password = ?, role = ?, subjects = ?, finalGrade = ? WHERE id = ?`,
+            [email, name, password, role, subjectsJson, finalGrade, id]
+        );
+        if (result.changes === 0) throw lecturersErrors.updateLecturer.notFound('Lecturer not found.');
+        return { message: 'Lecturer updated successfully.' };
+    },
+
+    async deleteLecturer(id) {
+        await dbRun(`DELETE FROM accounts WHERE id = ?`, [id]);
+        return { message: 'Lecturer deleted successfully.' };
     }
+};
 
-    // Convert subjects to JSON string if it is an array
-    const subjectsJson = Array.isArray(subjects) ? JSON.stringify(subjects) : subjects;
+/** @type {import('../generated/interfaces/ISubjectsService').ISubjectsService} */
+const subjectsService = {
+    async listSubjects() {
+        const rows = await dbAll(`SELECT * FROM subjects`);
+        return { subjects: rows };
+    },
 
-    // Prepare finalGrade, default to 100 if not provided
-    const finalGradeToUpdate = finalGrade || 100;
+    async getSubject(id) {
+        const row = await dbGet(`SELECT * FROM subjects WHERE id = ?`, [id]);
+        if (!row) throw subjectsErrors.getSubject.notFound('Subject not found.');
+        return row;
+    },
 
-    // Update query for the given user ID
-    const query = `UPDATE accounts SET email = ?, name = ?, password = ?, role = ?, subjects = ?, finalGrade = ? WHERE id = ?`;
+    async saveSubject(input) {
+        const { id, name } = input;
+        if (!name) throw subjectsErrors.saveSubject.missingFields('Subject name is required.');
 
-    // Parameters for the update query
-    const params = [email, name, password, role, subjectsJson, finalGradeToUpdate, userId];
-
-    db.run(query, params, function (err) {
-        if (err) {
-            console.error('Error updating user:', err.message);
-            return res.status(500).json({ message: 'Error updating user.' });
+        if (id) {
+            await dbRun(`UPDATE subjects SET name = ? WHERE id = ?`, [name, id]);
+        } else {
+            await dbRun(`INSERT INTO subjects (id, name) VALUES (?, ?)`, [generateSubjectId(), name]);
         }
+        return { message: 'Subject added/updated successfully.' };
+    },
 
-        // If no rows were affected, that means no user was found with the given ID
-        if (this.changes === 0) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
-
-        // Successful update
-        return res.status(200).json({ message: 'User updated successfully.' });
-    });
-});
-
-
-
-app.get('/api/students', (req, res) => {
-    const query = `SELECT * FROM accounts WHERE role = 'student'`;
-    db.all(query, [], (err, rows) => {
-        if (err) {
-            console.error('Error retrieving students:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
-        rows.forEach(row => {
-            row.subjects = JSON.parse(row.subjects); // Convert subjects back to an array
-        });
-        return res.status(200).json({ students: rows });
-    });
-});
-
-app.get('/api/student/:id', (req, res) => {
-    const studentId = req.params.id; // Get the student ID from the URL parameter
-    const query = `SELECT * FROM accounts WHERE id = ? AND role = 'student'`; // Use parameterized query to prevent SQL injection
-
-    db.get(query, [studentId], (err, row) => {
-        if (err) {
-            console.error('Error retrieving student:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
-
-        if (!row) {
-            return res.status(404).json({ message: 'Student not found.' });
-        }
-
-        row.subjects = JSON.parse(row.subjects); // Convert subjects back to an array
-        return res.status(200).json(row); // Return the student data as a JSON response
-    });
-});
-
-app.put('/api/student/:id', (req, res) => {
-    const { email, name, password, role, subjects } = req.body;
-    const studentId = req.params.id;  // Get the student ID from the URL parameter
-
-    let finalGrade = req.body.finalGrade;
-    if (finalGrade === undefined) {
-        finalGrade = 100;
+    async deleteSubject(id) {
+        await dbRun(`DELETE FROM subjects WHERE id = ?`, [id]);
+        return { message: 'Subject deleted successfully.' };
     }
+};
 
+/** @type {import('../generated/interfaces/IExamsService').IExamsService} */
+const examsService = {
+    async createExam(input) {
+        const { subject_id, name, examDate, duration, total_marks, questions, answers } = input;
+        const id = generateId();
+        await dbRun(
+            `INSERT INTO exams (id, subject_id, name, date, duration, total_marks, questions, answers) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [id, subject_id, name, examDate, duration, total_marks, questions, answers]
+        );
+        return { message: 'Exam added successfully.', id };
+    },
 
+    async listExams() {
+        const rows = await dbAll(`SELECT * FROM exams`);
+        const exams = rows.map(r => ({ ...r, examDate: r.date }));
+        return { exams };
+    },
 
-    // Validate input data
-    if (!studentId || !email || !name || !password || !role || !subjects) {
-        return res.status(400).json({ message: 'All fields are required, including the student ID.' });
-    }
+    async listExamsBySubject(subject_id) {
+        const rows = await dbAll(`SELECT * FROM exams WHERE subject_id = ?`, [subject_id]);
+        const exams = rows.map(r => ({ ...r, examDate: r.date }));
+        return { exams };
+    },
 
+    async getExam(id) {
+        const row = await dbGet(`SELECT * FROM exams WHERE id = ?`, [id]);
+        if (!row) throw examsErrors.getExam.notFound('Exam not found.');
 
-    // Convert subjects to JSON string if it is an array
-    const subjectsJson = Array.isArray(subjects) ? JSON.stringify(subjects) : subjects;
+        const questions = row.questions ? row.questions.split(';') : [];
+        const answers = row.answers ? row.answers.split(';').map(a => a.replace(/{|}/g, '').split(';')) : [];
 
-    // Update query for the given student ID
-    const query = `UPDATE accounts SET email = ?, name = ?, password = ?, role = ?, subjects = ?, finalGrade = ? WHERE id = ?`;
-
-    // Parameters for the update query
-    const params = [email, name, password, role, subjectsJson, finalGrade, studentId];
-
-    db.run(query, params, function (err) {
-        if (err) {
-            console.error('Error updating student:', err.message);
-            return res.status(500).json({ message: 'Error updating student.' });
-        }
-
-        // If no rows were affected, that means no student was found with the given ID
-        if (this.changes === 0) {
-            return res.status(404).json({ message: 'Student not found.' });
-        }
-
-        // Successful update
-        return res.status(200).json({ message: 'Student updated successfully.' });
-    });
-});
-
-// API to delete a student
-app.delete('/api/student/:id', (req, res) => {
-    const { id } = req.params;
-
-    const query = `DELETE FROM accounts WHERE id = ?`;
-    db.run(query, [id], (err) => {
-        if (err) {
-            console.error('Error deleting student:', err.message);
-            return res.status(500).json({ message: 'Error deleting student.' });
-        }
-        return res.status(200).json({ message: 'Student deleted successfully.' });
-    });
-});
-
-
-
-// Get all lecturers
-app.get('/api/lecturers', (req, res) => {
-    const query = `SELECT * FROM accounts WHERE role = 'lecturer'`;
-    db.all(query, [], (err, rows) => {
-        if (err) {
-            console.error('Error retrieving lecturers:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
-        rows.forEach(row => {
-            row.subjects = JSON.parse(row.subjects); // Convert subjects back to an array
-        });
-        return res.status(200).json({ lecturers: rows });
-    });
-});
-
-// Get a specific lecturer by ID
-app.get('/api/lecturer/:id', (req, res) => {
-    const lecturerId = req.params.id; // Get the lecturer ID from the URL parameter
-    const query = `SELECT * FROM accounts WHERE id = ? AND role = 'lecturer'`; // Use parameterized query to prevent SQL injection
-
-    db.get(query, [lecturerId], (err, row) => {
-        if (err) {
-            console.error('Error retrieving lecturer:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
-
-        if (!row) {
-            return res.status(404).json({ message: 'Lecturer not found.' });
-        }
-
-        row.subjects = JSON.parse(row.subjects); // Convert subjects back to an array
-        return res.status(200).json(row); // Return the lecturer data as a JSON response
-    });
-});
-
-app.put('/api/lecturer/:id', (req, res) => {
-    const { email, name, password, role, subjects } = req.body;
-    const lecturerId = req.params.id;  // Get the student ID from the URL parameter
-    let finalGrade = req.body.finalGrade;
-    if (finalGrade === undefined) {
-        finalGrade = 100;
-    }
-
-
-    // Validate input data
-    if (!lecturerId || !email || !name || !password || !role || !subjects) {
-        return res.status(400).json({ message: 'All fields are required, including the lecturer ID.' });
-    }
-
-
-    // Convert subjects to JSON string if it is an array
-    const subjectsJson = Array.isArray(subjects) ? JSON.stringify(subjects) : subjects;
-
-    // Update query for the given student ID
-    const query = `UPDATE accounts SET email = ?, name = ?, password = ?, role = ?, subjects = ?, finalGrade = ? WHERE id = ?`;
-
-    // Parameters for the update query
-    const params = [email, name, password, role, subjectsJson, finalGrade, lecturerId];
-
-    db.run(query, params, function (err) {
-        if (err) {
-            console.error('Error updating lecturer:', err.message);
-            return res.status(500).json({ message: 'Error updating lecturer.' });
-        }
-
-        // If no rows were affected, that means no student was found with the given ID
-        if (this.changes === 0) {
-            return res.status(404).json({ message: 'Lecturer not found.' });
-        }
-
-        // Successful update
-        return res.status(200).json({ message: 'Lecturer updated successfully.' });
-    });
-});
-
-// Delete a lecturer
-app.delete('/api/lecturer/:id', (req, res) => {
-    const { id } = req.params;
-
-    const query = `DELETE FROM accounts WHERE id = ?`;
-    db.run(query, [id], (err) => {
-        if (err) {
-            console.error('Error deleting lecturer:', err.message);
-            return res.status(500).json({ message: 'Error deleting lecturer.' });
-        }
-        return res.status(200).json({ message: 'Lecturer deleted successfully.' });
-    });
-});
-
-
-// Get all subjects
-app.get('/api/subjects', (req, res) => {
-    const query = `SELECT * FROM subjects`;
-    db.all(query, [], (err, rows) => {
-        if (err) {
-            console.error('Error retrieving subjects:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
-        return res.status(200).json({ subjects: rows });
-    });
-});
-
-// Get a specific subject by its ID
-app.get('/api/subject/:id', (req, res) => {
-    const subjectId = req.params.id;
-    const query = `SELECT * FROM subjects WHERE id = ?`;
-
-    db.get(query, [subjectId], (err, row) => {
-        if (err) {
-            console.error('Error retrieving subject:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
-
-        if (!row) {
-            return res.status(404).json({ message: 'Subject not found.' });
-        }
-
-        return res.status(200).json(row);
-    });
-});
-
-// Add or update a subject
-app.post('/api/subject', (req, res) => {
-    const { id, name } = req.body;
-
-    if (!name) {
-        return res.status(400).json({ message: 'Subject name is required.' });
-    }
-
-    const query = id
-        ? `UPDATE subjects SET name = ? WHERE id = ?`
-        : `INSERT INTO subjects (id, name) VALUES (?, ?)`;
-
-    const params = id ? [name, id] : [generateSubjectId(), name];  // Use a function to generate a new unique subject ID if inserting
-
-    db.run(query, params, (err) => {
-        if (err) {
-            console.error('Error saving subject:', err.message);
-            return res.status(500).json({ message: 'Error saving subject.' });
-        }
-        return res.status(201).json({ message: 'Subject added/updated successfully.' });
-    });
-});
-
-// Delete a subject by its ID
-app.delete('/api/subject/:id', (req, res) => {
-    const subjectId = req.params.id;
-
-    const query = `DELETE FROM subjects WHERE id = ?`;
-    db.run(query, [subjectId], (err) => {
-        if (err) {
-            console.error('Error deleting subject:', err.message);
-            return res.status(500).json({ message: 'Error deleting subject.' });
-        }
-        return res.status(200).json({ message: 'Subject deleted successfully.' });
-    });
-});
-
-// Helper function to generate a unique subject ID (if needed for new subjects)
-function generateSubjectId() {
-    return `SUB${Date.now().toString().slice(-6)}`; // Divide by 1000 to reduce the number of digits
-}
-
-// Add exam route
-app.post('/api/exam', (req, res) => {
-    const { subject_id, name, date, duration, total_marks, questions, answers } = req.body;
-
-    // if (!subject_id || !name || !date || !duration || !total_marks || !questions || !answers) {
-    //     return res.status(400).json({ message: 'All fields are required.' });
-    // }
-
-    const id = generateId(); // Generate a unique ID for the exam
-
-    const query = `INSERT INTO exams (id, subject_id, name, date, duration, total_marks, questions, answers) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    db.run(
-        query,
-        [id, subject_id, name, date, duration, total_marks, questions, answers],
-        (err) => {
-            if (err) {
-                console.error('Error adding exam:', err.message);
-                return res.status(500).json({ message: 'Error adding exam to the database.' });
-            }
-            return res.status(200).json({ message: 'Exam added successfully.', id });
-        }
-    );
-});
-// Get all exams route
-app.get('/api/exams', (req, res) => {
-    const query = `SELECT * FROM exams`;
-    db.all(query, [], (err, rows) => {
-        if (err) {
-            console.error('Error retrieving exams:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
-        return res.status(200).json({ exams: rows });
-    });
-});
-
-// Get all exams by subject_id route
-app.get('/api/exams/:subject_id', (req, res) => {
-    const subjectId = req.params.subject_id; // Get subject_id from URL parameter
-
-    const query = `SELECT * FROM exams WHERE subject_id = ?`;
-
-    db.all(query, [subjectId], (err, rows) => {
-        if (err) {
-            console.error('Error retrieving exams:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
-        return res.status(200).json({ exams: rows });
-    });
-});
-
-// Get an exam by ID
-// Get an exam by ID
-app.get('/api/exam/:id', (req, res) => {
-    const examId = req.params.id;
-    const query = `SELECT * FROM exams WHERE id = ?`;
-
-    db.get(query, [examId], (err, row) => {
-        if (err) {
-            console.error('Error retrieving exam:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
-
-        if (!row) {
-            return res.status(404).json({ message: 'Exam not found.' });
-        }
-
-        // Split questions and answers back into arrays
-        const questions = row.questions.split(';');
-        const answers = row.answers.split(';').map(answer => answer.replace(/{|}/g, '').split(';'));
-
-        // Add the parsed questions and answers to the response
-        return res.status(200).json({
+        return {
             ...row,
+            examDate: row.date,
             questions,
             answers
-        });
-    });
-});
+        };
+    },
 
-// Update an exam route
-app.put('/api/exam/:id', (req, res) => {
-    const examId = req.params.id;
-    const { subject_id, name, date, duration, total_marks, questions, answers, entredID, grades } = req.body;
+    async updateExam(id, input) {
+        const { subject_id, name, examDate, duration, total_marks, questions, answers, entredID, grades } = input;
 
-    // if (!subject_id || !name || !date || !duration || !total_marks || !questions || !answers) {
-    //     return res.status(400).json({ message: 'All fields are required.' });
-    // }
+        const result = await dbRun(
+            `UPDATE exams SET subject_id = ?, name = ?, date = ?, duration = ?, total_marks = ?, questions = ?, answers = ?, entredID = ?, grades = ? WHERE id = ?`,
+            [subject_id, name, examDate, duration, total_marks, questions, answers, entredID, grades, id]
+        );
+        if (result.changes === 0) throw examsErrors.updateExam.notFound('Exam not found.');
+        return { message: 'Exam updated successfully.' };
+    },
 
-    const query = `UPDATE exams SET subject_id = ?, name = ?, date = ?, duration = ?, total_marks = ?, questions = ?, answers = ?, entredID = ?, grades = ?  WHERE id = ?`;
+    async deleteExam(id) {
+        await dbRun(`DELETE FROM exams WHERE id = ?`, [id]);
+        return { message: 'Exam deleted successfully.' };
+    },
 
-    db.run(
-        query,
-        [subject_id, name, date, duration, total_marks, questions, answers, entredID, grades, examId],
-        function (err) {
-            if (err) {
-                console.error('Error updating exam:', err.message);
-                return res.status(500).json({ message: 'Error updating exam.' });
-            }
+    async addStudentToExam(id, input) {
+        const { studentId } = input;
+        const newEntry = `{${studentId}}`;
+        await dbRun(
+            `UPDATE exams SET entredID = COALESCE(entredID, '') || ? WHERE id = ?`,
+            [newEntry, id]
+        );
+        return { message: 'Student added successfully.' };
+    },
 
-            if (this.changes === 0) {
-                return res.status(404).json({ message: 'Exam not found.' });
-            }
-
-            return res.status(200).json({ message: 'Exam updated successfully.' });
-        }
-    );
-});
-// Delete exam route
-app.delete('/api/exam/:id', (req, res) => {
-    const examId = req.params.id;
-
-    const query = `DELETE FROM exams WHERE id = ?`;
-    db.run(query, [examId], (err) => {
-        if (err) {
-            console.error('Error deleting exam:', err.message);
-            return res.status(500).json({ message: 'Error deleting exam.' });
-        }
-        return res.status(200).json({ message: 'Exam deleted successfully.' });
-    });
-});
-
-
-app.put('/api/exam/:id/add-student', (req, res) => {
-    const examId = req.params.id;
-    const { studentId } = req.body;
-
-    const query = `UPDATE exams SET entredID = COALESCE(entredID, '') || ? WHERE id = ?`;
-    const newEntry = `{${studentId}};`; // Append new student
-
-    db.run(query, [newEntry, examId], function (err) {
-        if (err) {
-            console.error('Error adding student to exam:', err.message);
-            return res.status(500).json({ message: 'Error adding student.' });
-        }
-        return res.status(200).json({ message: 'Student added successfully.' });
-    });
-});
-
-
-
-
-app.post('/api/exam/:id/submit', (req, res) => {
-    const examId = req.params.id;
-    const { studentId, answers, grade } = req.body;
-
-    const query = `UPDATE exams SET grades = COALESCE(grades, '') || ? WHERE id = ?`;
-    const gradeEntry = `{${studentId}: ${grade}};`; // Add student grade
-
-    db.run(query, [gradeEntry, examId], (err) => {
-        if (err) {
-            console.error('Error submitting exam:', err.message);
-            return res.status(500).json({ message: 'Error submitting exam.' });
-        }
-        return res.status(200).json({ message: 'Exam submitted successfully.' });
-    });
-});
-
-
-
-
-// Authentication route
-app.post('/api/authenticate', (req, res) => {
-    const { id, password } = req.body;
-
-    if (!id || !password) {
-        return res.status(400).json({ message: 'ID and Password are required.' });
+    async submitExam(id, input) {
+        const { studentId, answers, grade } = input;
+        const gradeEntry = `{${studentId}: ${grade}}`;
+        await dbRun(
+            `UPDATE exams SET grades = COALESCE(grades, '') || ? WHERE id = ?`,
+            [gradeEntry, id]
+        );
+        return { message: 'Exam submitted successfully.' };
     }
+};
 
-    const query = `SELECT * FROM accounts WHERE id = ? AND password = ?`;
-    db.get(query, [id, password], (err, user) => {
-        if (err) {
-            console.error('Error querying database:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
-        }
+// ─── Register Veld-generated routes ─────────────────────────────────
+authRouter(app, authService);
+usersRouter(app, usersService);
+studentsRouter(app, studentsService);
+lecturersRouter(app, lecturersService);
+subjectsRouter(app, subjectsService);
+examsRouter(app, examsService);
 
-        if (user) {
-            user.subjects = JSON.parse(user.subjects); // Convert subjects back to an array
-            return res.status(200).json({ user });
-        } else {
-            return res.status(401).json({ message: 'Invalid ID or Password.' });
-        }
-    });
-});
-
-// Start server
-app.listen(PORT,'0.0.0.0' ,() => {
+// ─── Start server ───────────────────────────────────────────────────
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

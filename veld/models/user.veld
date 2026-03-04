@@ -1,0 +1,48 @@
+// User / Account domain models and enums.
+
+enum UserRole {
+  admin
+  lecturer
+  student
+}
+
+model Account {
+  description: "A platform account (admin, lecturer, or student)"
+  email:      string
+  id:         string
+  name:       string
+  password:   string
+  role:       UserRole
+  subjects:   string[]
+  finalGrade: float
+}
+
+model CreateAccountInput {
+  description: "Data required to create a new account"
+  email:       string
+  name:        string
+  password:    string
+  role:        UserRole
+  subjects:    string[]
+  finalGrade?: float
+}
+
+model UpdateAccountInput {
+  description: "Fields for updating an account"
+  email:       string
+  name:        string
+  password:    string
+  role:        UserRole
+  subjects:    string[]
+  finalGrade?: float
+}
+
+model StudentListResponse {
+  description: "Wrapper for list of students"
+  students: Account[]
+}
+
+model LecturerListResponse {
+  description: "Wrapper for list of lecturers"
+  lecturers: Account[]
+}

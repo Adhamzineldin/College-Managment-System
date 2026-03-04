@@ -13,16 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentStudentIndex = -1;
     let subjects = [];
 
-
-    const apiUrl = window.location.hostname === "localhost"
-  ? "http://localhost:5000"  // Local development
-  : "https://app5000.maayn.me";
-
-    // Fetch subjects from backend
+    // Fetch subjects using Veld client
     const fetchSubjects = async () => {
         try {
-            const response = await fetch(`${apiUrl}/api/subjects`);
-            const data = await response.json();
+            const data = await veld.Subjects.listSubjects();
             if (data.subjects) {
                 subjects = data.subjects;
                 renderSubjects();
@@ -38,14 +32,14 @@ document.addEventListener("DOMContentLoaded", () => {
         subjects.forEach(subject => {
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
-            checkbox.value = subject.id;  // Use subject.id here
-            checkbox.id = `subject-${subject.id}`;  // ID is based on subject.id
+            checkbox.value = subject.id;
+            checkbox.id = `subject-${subject.id}`;
             checkbox.classList.add("form-check-input");
 
             const label = document.createElement("label");
             label.setAttribute("for", checkbox.id);
             label.classList.add("form-check-label");
-            label.textContent = subject.name;  // Display subject.name
+            label.textContent = subject.name;
 
             const div = document.createElement("div");
             div.classList.add("form-check");
@@ -56,11 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    // Fetch and render all students from the backend
+    // Fetch and render all students using Veld client
     const fetchStudents = async () => {
         try {
-            const response = await fetch(`${apiUrl}/api/students`);
-            const data = await response.json();
+            const data = await veld.Students.listStudents();
             if (data.students) {
                 renderStudents(data.students);
             }
@@ -90,19 +83,17 @@ document.addEventListener("DOMContentLoaded", () => {
             : `<p>No students found.</p>`;
     };
 
-    // Open the modal for editing or adding a student
+    // Open the modal for editing or adding a student using Veld client
     const openModal = async (studentId = null) => {
         if (studentId) {
             try {
-                const response = await fetch(`${apiUrl}/api/student/${studentId}`);
-                const student = await response.json();
+                const student = await veld.Students.getStudent(studentId);
 
                 if (student) {
                     nameInput.value = student.name;
                     emailInput.value = student.email;
-                    idInput.value = student.id; // ID is fetched from the backend
-                    idInput.disabled = true; // Disable the ID field
-
+                    idInput.value = student.id;
+                    idInput.disabled = true;
                     passwordInput.value = student.password;
 
                     Array.from(subjectsSelect.querySelectorAll('input[type="checkbox"]')).forEach(checkbox => {
@@ -126,16 +117,16 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.show();
     };
 
-    // Save student to the backend (add or update)
+    // Save student using Veld client (add or update)
     const saveStudent = async () => {
         const name = nameInput.value.trim();
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
         const selectedSubjects = Array.from(subjectsSelect.querySelectorAll('input[type="checkbox"]:checked')).map(
-            checkbox => checkbox.value  // Save subject id, not name
+            checkbox => checkbox.value
         );
 
-        if (!name || !email || !password || selectedSubjects.length === 0 ) {
+        if (!name || !email || !password || selectedSubjects.length === 0) {
             alert("Please fill all fields");
             return;
         }
@@ -144,33 +135,33 @@ document.addEventListener("DOMContentLoaded", () => {
             email,
             name,
             password,
-            role: 'student',  // Set role to 'student' as per your backend
-            subjects: selectedSubjects, // Use subject ids here
+            role: 'student',
+            subjects: selectedSubjects,
             finalGrade: 100
         };
 
         try {
-            const method = currentStudentIndex === -1 ? "POST" : "PUT";
-            const url = currentStudentIndex === -1
-                ? `${apiUrl}/api/add-user`
-                : `${apiUrl}/api/student/${currentStudentIndex}`;
-
-            const response = await fetch(url, {
-                method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(studentData)
-            });
-
-            const result = await response.json();
-
-            if (response.status === 200) {
-                fetchStudents();  // Refresh the student list
-                modal.hide();     // Close the modal
+            if (currentStudentIndex === -1) {
+                // Create new student via Veld Users.addUser
+                await veld.Users.addUser(studentData);
             } else {
-                alert("Error saving student data: " + result.message);
+                // Update existing student via Veld Students.updateStudent
+                await veld.Students.updateStudent(currentStudentIndex, studentData);
             }
+
+            fetchStudents();
+            modal.hide();
         } catch (error) {
             console.error("Error saving student:", error);
+            if (veld.isErrorCode(error, veld.Users.errors.addUser.missingFields)) {
+                alert("Missing required fields when creating student.");
+            } else if (veld.isErrorCode(error, veld.Students.errors.updateStudent.notFound)) {
+                alert("Student not found.");
+            } else if (veld.isErrorCode(error, veld.Students.errors.updateStudent.missingFields)) {
+                alert("Missing required fields when updating student.");
+            } else if (veld.isApiError(error)) {
+                alert("Error saving student data: " + error.body);
+            }
         }
     };
 
@@ -200,27 +191,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Delete student function
+    // Delete student using Veld client
     const deleteStudent = async (studentId) => {
         const confirmed = confirm("Are you sure you want to delete this student?");
         if (confirmed) {
             try {
-                const response = await fetch(`${apiUrl}/api/student/${studentId}`, {
-                    method: "DELETE"
-                });
-                const result = await response.json();
-                if (response.status === 200) {
-                    fetchStudents();
-                } else {
-                    alert("Error deleting student");
-                }
+                await veld.Students.deleteStudent(studentId);
+                fetchStudents();
             } catch (error) {
                 console.error("Error deleting student:", error);
+                alert("Error deleting student");
             }
         }
     };
 
     // Initial data fetch
-    fetchSubjects();  // Fetch subjects
-    fetchStudents();  // Fetch students
+    fetchSubjects();
+    fetchStudents();
 });

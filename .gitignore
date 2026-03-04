@@ -1,0 +1,23 @@
+# Node.js
+node_modules/
+
+# IDE
+.idea/
+
+# Veld framework
+veld/.veld.lock.json
+veld/.veld-cache.json
+
+# Generated code
+generated/
+generated-js/
+
+# Database
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*

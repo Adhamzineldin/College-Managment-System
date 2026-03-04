@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": false,
+    "types": ["node"],
+    "isolatedModules": true
+  },
+  "include": ["generated/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+
+
+

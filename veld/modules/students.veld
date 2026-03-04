@@ -1,0 +1,42 @@
+// Students module — CRUD endpoints for student management.
+
+import @models/user
+import @models/common
+
+module Students {
+  description: "Student management"
+  prefix:      /api
+
+  action ListStudents {
+    description: "List all students"
+    method:      GET
+    path:        /students
+    output:      StudentListResponse
+  }
+
+  action GetStudent {
+    description: "Get a single student by ID"
+    method:      GET
+    path:        /student/:id
+    output:      Account
+    errors:      [NotFound]
+  }
+
+  action UpdateStudent {
+    description: "Update a student by ID"
+    method:      PUT
+    path:        /student/:id
+    input:       UpdateAccountInput
+    output:      SuccessMessage
+    errors:      [MissingFields, NotFound]
+  }
+
+  action DeleteStudent {
+    description: "Delete a student by ID"
+    method:      DELETE
+    path:        /student/:id
+    output:      SuccessMessage
+    errors:      [NotFound]
+  }
+}
+

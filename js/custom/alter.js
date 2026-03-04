@@ -1,11 +1,5 @@
-
-const apiUrl = window.location.hostname === "localhost"
-  ? "http://localhost:5000"  // Local development
-  : "https://app5000.maayn.me";
 document.getElementById("updateForm").addEventListener("submit", async function (event) {
     event.preventDefault();
-
-
 
     // Get current user details from localStorage
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -21,7 +15,7 @@ document.getElementById("updateForm").addEventListener("submit", async function 
         return;
     }
 
-    // Check if the current password matches (or send just the new values to update)
+    // Check if the current password matches
     if (currentUser.password !== password) {
         setStatusMessage("Incorrect password!", "error");
         return;
@@ -34,34 +28,29 @@ document.getElementById("updateForm").addEventListener("submit", async function 
     }
 
     try {
-        // Make PUT request to update user data on the backend
-        const response = await fetch(`${apiUrl}/api/updateUser/${currentUser.id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                id: currentUser.id,
-                password: newPassword,
-                role: currentUser.role,
-                name: currentUser.name,
-                email: currentUser.email,
-                subjects: currentUser.subjects,
-            })
+        // Use Veld client: Users.updateUser
+        await veld.Users.updateUser(currentUser.id, {
+            password: newPassword,
+            role: currentUser.role,
+            name: currentUser.name,
+            email: currentUser.email,
+            subjects: currentUser.subjects,
         });
 
-        const data = await response.json();
-
-        if (response.ok) {
-            currentUser.password = newPassword;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            setStatusMessage("User details updated successfully!", "success");
-        } else {
-            setStatusMessage(data.message || "Failed to update user details", "error");
-        }
+        currentUser.password = newPassword;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        setStatusMessage("User details updated successfully!", "success");
     } catch (error) {
-        console.error("Error updating user:", error);
-        setStatusMessage("An error occurred. Please try again later.", "error");
+        if (veld.isErrorCode(error, veld.Users.errors.updateUser.missingFields)) {
+            setStatusMessage("All fields are required!", "error");
+        } else if (veld.isErrorCode(error, veld.Users.errors.updateUser.notFound)) {
+            setStatusMessage("User not found!", "error");
+        } else if (veld.isApiError(error)) {
+            setStatusMessage(error.body || "Failed to update user details", "error");
+        } else {
+            console.error("Error updating user:", error);
+            setStatusMessage("An error occurred. Please try again later.", "error");
+        }
     }
 });
 

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Documentation — Veld</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f9fafb;--fg:#111827;--sidebar-bg:#ffffff;--sidebar-border:#e5e7eb;
+  --card:#ffffff;--card-border:#e5e7eb;--card-shadow:0 1px 3px rgba(0,0,0,.06);
+  --accent:#4f46e5;--accent-hover:#4338ca;--accent-bg:#eef2ff;--accent-fg:#3730a3;
+  --muted:#6b7280;--muted-light:#9ca3af;
+  --code-bg:#f3f4f6;--code-fg:#1f2937;
+  --table-stripe:#f9fafb;--table-hover:#f3f4f6;
+  --get:#059669;--get-bg:#ecfdf5;--post:#2563eb;--post-bg:#eff6ff;
+  --put:#d97706;--put-bg:#fffbeb;--delete:#dc2626;--delete-bg:#fef2f2;
+  --patch:#ea580c;--patch-bg:#fff7ed;--ws:#7c3aed;--ws-bg:#f5f3ff;
+  --radius:8px;--transition:150ms ease;
+}
+[data-theme="dark"]{
+  --bg:#0f172a;--fg:#e2e8f0;--sidebar-bg:#1e293b;--sidebar-border:#334155;
+  --card:#1e293b;--card-border:#334155;--card-shadow:0 1px 3px rgba(0,0,0,.3);
+  --accent:#818cf8;--accent-hover:#a5b4fc;--accent-bg:#1e1b4b;--accent-fg:#c7d2fe;
+  --muted:#94a3b8;--muted-light:#64748b;
+  --code-bg:#334155;--code-fg:#e2e8f0;
+  --table-stripe:#1e293b;--table-hover:#334155;
+  --get:#34d399;--get-bg:#064e3b;--post:#60a5fa;--post-bg:#1e3a5f;
+  --put:#fbbf24;--put-bg:#451a03;--delete:#f87171;--delete-bg:#450a0a;
+  --patch:#fb923c;--patch-bg:#431407;--ws:#a78bfa;--ws-bg:#2e1065;
+}
+html{scroll-behavior:smooth}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6;display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:280px;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:20}
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-header h1{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.sidebar-header h1 span{color:var(--accent)}
+.sidebar-header p{font-size:12px;color:var(--muted);margin-top:2px}
+.search-box{padding:12px 16px}
+.search-box input{width:100%;padding:8px 12px 8px 36px;border:1px solid var(--card-border);border-radius:var(--radius);font-size:13px;background:var(--bg);color:var(--fg);outline:none;transition:border-color var(--transition)}
+.search-box input:focus{border-color:var(--accent)}
+.search-box{position:relative}
+.search-box::before{content:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b7280' viewBox='0 0 24 24'%3E%3Cpath d='M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z' stroke='%236b7280' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");position:absolute;left:28px;top:50%;transform:translateY(-50%)}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 12px 24px}
+.nav-group{margin-bottom:16px}
+.nav-group-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted-light);padding:4px 8px;margin-bottom:4px}
+.nav-link{display:block;padding:6px 12px;font-size:13px;color:var(--fg);text-decoration:none;border-radius:6px;transition:all var(--transition);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-link:hover{background:var(--accent-bg);color:var(--accent-fg)}
+.nav-link .method-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
+
+/* Main content */
+.main{margin-left:280px;flex:1;padding:48px 56px;max-width:960px}
+.main h2{font-size:24px;font-weight:700;margin:48px 0 8px;letter-spacing:-.02em}
+.main h2:first-child{margin-top:0}
+.section-desc{color:var(--muted);font-size:14px;margin-bottom:24px}
+
+/* Endpoint cards */
+.endpoint{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;box-shadow:var(--card-shadow);transition:box-shadow var(--transition)}
+.endpoint:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.endpoint-header{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;user-select:none}
+.endpoint-header:hover{background:var(--table-hover)}
+.method-badge{display:inline-flex;align-items:center;justify-content:center;min-width:56px;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.03em;font-family:'SF Mono',SFMono-Regular,Consolas,monospace}
+.method-GET{background:var(--get-bg);color:var(--get)}
+.method-POST{background:var(--post-bg);color:var(--post)}
+.method-PUT{background:var(--put-bg);color:var(--put)}
+.method-DELETE{background:var(--delete-bg);color:var(--delete)}
+.method-PATCH{background:var(--patch-bg);color:var(--patch)}
+.method-WS{background:var(--ws-bg);color:var(--ws)}
+.endpoint-path{font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:13px;font-weight:500;flex:1}
+.endpoint-path .param{color:var(--accent);font-weight:600}
+.endpoint-name{font-size:12px;color:var(--muted);font-weight:500}
+.endpoint-detail{padding:0 20px 16px;display:none;border-top:1px solid var(--card-border)}
+.endpoint-detail.open{display:block;padding-top:16px}
+.detail-row{display:flex;gap:8px;margin-bottom:8px;font-size:13px}
+.detail-label{font-weight:600;min-width:80px;color:var(--muted)}
+.detail-value code{background:var(--code-bg);color:var(--code-fg);padding:2px 8px;border-radius:4px;font-size:12px;font-family:'SF Mono',SFMono-Regular,Consolas,monospace}
+
+/* Model cards */
+.model-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:var(--card-shadow)}
+.model-header{padding:16px 20px;border-bottom:1px solid var(--card-border)}
+.model-header h3{font-size:16px;font-weight:600}
+.model-header h3 .extends{font-weight:400;color:var(--muted);font-size:13px;margin-left:8px}
+.model-header .model-desc{color:var(--muted);font-size:13px;margin-top:4px}
+.model-table{width:100%;border-collapse:collapse}
+.model-table th{text-align:left;padding:10px 20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted-light);background:var(--table-stripe);border-bottom:1px solid var(--card-border)}
+.model-table td{padding:10px 20px;font-size:13px;border-bottom:1px solid var(--card-border)}
+.model-table tr:last-child td{border-bottom:none}
+.model-table tr:hover td{background:var(--table-hover)}
+.model-table code{background:var(--code-bg);color:var(--code-fg);padding:2px 6px;border-radius:4px;font-size:12px;font-family:'SF Mono',SFMono-Regular,Consolas,monospace}
+.optional-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600;background:var(--put-bg);color:var(--put)}
+.default-value{color:var(--accent);font-size:12px;font-family:'SF Mono',SFMono-Regular,Consolas,monospace}
+
+/* Enum cards */
+.enum-values{display:flex;flex-wrap:wrap;gap:6px;padding:16px 20px}
+.enum-value{background:var(--code-bg);color:var(--code-fg);padding:4px 12px;border-radius:4px;font-size:12px;font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-weight:500}
+
+/* Theme toggle */
+.toolbar{position:fixed;top:16px;right:24px;z-index:30;display:flex;gap:8px}
+.theme-btn{background:var(--card);border:1px solid var(--card-border);color:var(--fg);width:36px;height:36px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:var(--card-shadow);transition:all var(--transition)}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Stats bar */
+.stats{display:flex;gap:24px;margin-bottom:32px}
+.stat{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px 24px;box-shadow:var(--card-shadow);flex:1;text-align:center}
+.stat-value{font-size:28px;font-weight:700;color:var(--accent)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:24px 16px}
+}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button class="theme-btn" onclick="toggleTheme()" title="Toggle dark mode">
+    <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  </button>
+</div>
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <h1><span>Veld</span> API</h1>
+    <p>Auto-generated documentation</p>
+  </div>
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Search endpoints..." oninput="filterNav(this.value)">
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-group"><div class="nav-group-title">Auth</div>
+      <a href="#action-auth-authenticate" class="nav-link"><span class="method-dot" style="background:var(--post)"></span>Authenticate <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/authenticate</span></a>
+    </div>
+    <div class="nav-group"><div class="nav-group-title">Users</div>
+      <a href="#action-users-adduser" class="nav-link"><span class="method-dot" style="background:var(--post)"></span>AddUser <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/add-user</span></a>
+      <a href="#action-users-updateuser" class="nav-link"><span class="method-dot" style="background:var(--put)"></span>UpdateUser <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/updateUser/:id</span></a>
+    </div>
+    <div class="nav-group"><div class="nav-group-title">Students</div>
+      <a href="#action-students-liststudents" class="nav-link"><span class="method-dot" style="background:var(--get)"></span>ListStudents <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/students</span></a>
+      <a href="#action-students-getstudent" class="nav-link"><span class="method-dot" style="background:var(--get)"></span>GetStudent <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/student/:id</span></a>
+      <a href="#action-students-updatestudent" class="nav-link"><span class="method-dot" style="background:var(--put)"></span>UpdateStudent <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/student/:id</span></a>
+      <a href="#action-students-deletestudent" class="nav-link"><span class="method-dot" style="background:var(--delete)"></span>DeleteStudent <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/student/:id</span></a>
+    </div>
+    <div class="nav-group"><div class="nav-group-title">Lecturers</div>
+      <a href="#action-lecturers-listlecturers" class="nav-link"><span class="method-dot" style="background:var(--get)"></span>ListLecturers <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/lecturers</span></a>
+      <a href="#action-lecturers-getlecturer" class="nav-link"><span class="method-dot" style="background:var(--get)"></span>GetLecturer <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/lecturer/:id</span></a>
+      <a href="#action-lecturers-updatelecturer" class="nav-link"><span class="method-dot" style="background:var(--put)"></span>UpdateLecturer <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/lecturer/:id</span></a>
+      <a href="#action-lecturers-deletelecturer" class="nav-link"><span class="method-dot" style="background:var(--delete)"></span>DeleteLecturer <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/lecturer/:id</span></a>
+    </div>
+    <div class="nav-group"><div class="nav-group-title">Subjects</div>
+      <a href="#action-subjects-listsubjects" class="nav-link"><span class="method-dot" style="background:var(--get)"></span>ListSubjects <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/subjects</span></a>
+      <a href="#action-subjects-getsubject" class="nav-link"><span class="method-dot" style="background:var(--get)"></span>GetSubject <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/subject/:id</span></a>
+      <a href="#action-subjects-savesubject" class="nav-link"><span class="method-dot" style="background:var(--post)"></span>SaveSubject <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/subject</span></a>
+      <a href="#action-subjects-deletesubject" class="nav-link"><span class="method-dot" style="background:var(--delete)"></span>DeleteSubject <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/subject/:id</span></a>
+    </div>
+    <div class="nav-group"><div class="nav-group-title">Exams</div>
+      <a href="#action-exams-createexam" class="nav-link"><span class="method-dot" style="background:var(--post)"></span>CreateExam <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/exam</span></a>
+      <a href="#action-exams-listexams" class="nav-link"><span class="method-dot" style="background:var(--get)"></span>ListExams <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/exams</span></a>
+      <a href="#action-exams-listexamsbysubject" class="nav-link"><span class="method-dot" style="background:var(--get)"></span>ListExamsBySubject <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/exams/:subject_id</span></a>
+      <a href="#action-exams-getexam" class="nav-link"><span class="method-dot" style="background:var(--get)"></span>GetExam <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/exam/:id</span></a>
+      <a href="#action-exams-updateexam" class="nav-link"><span class="method-dot" style="background:var(--put)"></span>UpdateExam <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/exam/:id</span></a>
+      <a href="#action-exams-deleteexam" class="nav-link"><span class="method-dot" style="background:var(--delete)"></span>DeleteExam <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/exam/:id</span></a>
+      <a href="#action-exams-addstudenttoexam" class="nav-link"><span class="method-dot" style="background:var(--put)"></span>AddStudentToExam <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/exam/:id/add-student</span></a>
+      <a href="#action-exams-submitexam" class="nav-link"><span class="method-dot" style="background:var(--post)"></span>SubmitExam <span style="color:var(--muted-light);font-size:11px;margin-left:4px">/api/exam/:id/submit</span></a>
+    </div>
+    <div class="nav-group"><div class="nav-group-title">Models</div>
+      <a href="#model-account" class="nav-link">Account</a>
+      <a href="#model-createaccountinput" class="nav-link">CreateAccountInput</a>
+      <a href="#model-updateaccountinput" class="nav-link">UpdateAccountInput</a>
+      <a href="#model-studentlistresponse" class="nav-link">StudentListResponse</a>
+      <a href="#model-lecturerlistresponse" class="nav-link">LecturerListResponse</a>
+      <a href="#model-logininput" class="nav-link">LoginInput</a>
+      <a href="#model-loginresponse" class="nav-link">LoginResponse</a>
+      <a href="#model-successmessage" class="nav-link">SuccessMessage</a>
+      <a href="#model-idresponse" class="nav-link">IdResponse</a>
+      <a href="#model-listquery" class="nav-link">ListQuery</a>
+      <a href="#model-subject" class="nav-link">Subject</a>
+      <a href="#model-createsubjectinput" class="nav-link">CreateSubjectInput</a>
+      <a href="#model-subjectlistresponse" class="nav-link">SubjectListResponse</a>
+      <a href="#model-exam" class="nav-link">Exam</a>
+      <a href="#model-createexaminput" class="nav-link">CreateExamInput</a>
+      <a href="#model-updateexaminput" class="nav-link">UpdateExamInput</a>
+      <a href="#model-examlistresponse" class="nav-link">ExamListResponse</a>
+      <a href="#model-examdetailresponse" class="nav-link">ExamDetailResponse</a>
+      <a href="#model-addstudenttoexaminput" class="nav-link">AddStudentToExamInput</a>
+      <a href="#model-submitexaminput" class="nav-link">SubmitExamInput</a>
+    </div>
+    <div class="nav-group"><div class="nav-group-title">Enums</div>
+      <a href="#enum-userrole" class="nav-link">UserRole</a>
+    </div>
+  </div>
+</nav>
+<main class="main">
+<div class="stats">
+  <div class="stat"><div class="stat-value">6</div><div class="stat-label">Modules</div></div>
+  <div class="stat"><div class="stat-value">23</div><div class="stat-label">Endpoints</div></div>
+  <div class="stat"><div class="stat-value">20</div><div class="stat-label">Models</div></div>
+  <div class="stat"><div class="stat-value">1</div><div class="stat-label">Enums</div></div>
+</div>
+
+<h2 id="mod-auth">Auth</h2>
+<p class="section-desc">Authentication</p>
+<div class="endpoint" id="action-auth-authenticate">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-POST">POST</span>
+    <span class="endpoint-path">/api/authenticate</span>
+    <span class="endpoint-name">Authenticate</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Log in with ID and password</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>LoginInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>LoginResponse</code></span></div>
+  </div>
+</div>
+
+<h2 id="mod-users">Users</h2>
+<p class="section-desc">Generic user management (add and update)</p>
+<div class="endpoint" id="action-users-adduser">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-POST">POST</span>
+    <span class="endpoint-path">/api/add-user</span>
+    <span class="endpoint-name">AddUser</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Create a new user account</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>CreateAccountInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>IdResponse</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-users-updateuser">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-PUT">PUT</span>
+    <span class="endpoint-path">/api/updateUser/<span class="param">:id</span></span>
+    <span class="endpoint-name">UpdateUser</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Update an existing user account by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>UpdateAccountInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+
+<h2 id="mod-students">Students</h2>
+<p class="section-desc">Student management</p>
+<div class="endpoint" id="action-students-liststudents">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-GET">GET</span>
+    <span class="endpoint-path">/api/students</span>
+    <span class="endpoint-name">ListStudents</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>List all students</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>StudentListResponse</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-students-getstudent">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-GET">GET</span>
+    <span class="endpoint-path">/api/student/<span class="param">:id</span></span>
+    <span class="endpoint-name">GetStudent</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Get a single student by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>Account</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-students-updatestudent">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-PUT">PUT</span>
+    <span class="endpoint-path">/api/student/<span class="param">:id</span></span>
+    <span class="endpoint-name">UpdateStudent</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Update a student by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>UpdateAccountInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-students-deletestudent">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-DELETE">DELETE</span>
+    <span class="endpoint-path">/api/student/<span class="param">:id</span></span>
+    <span class="endpoint-name">DeleteStudent</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Delete a student by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+
+<h2 id="mod-lecturers">Lecturers</h2>
+<p class="section-desc">Lecturer management</p>
+<div class="endpoint" id="action-lecturers-listlecturers">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-GET">GET</span>
+    <span class="endpoint-path">/api/lecturers</span>
+    <span class="endpoint-name">ListLecturers</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>List all lecturers</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>LecturerListResponse</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-lecturers-getlecturer">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-GET">GET</span>
+    <span class="endpoint-path">/api/lecturer/<span class="param">:id</span></span>
+    <span class="endpoint-name">GetLecturer</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Get a single lecturer by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>Account</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-lecturers-updatelecturer">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-PUT">PUT</span>
+    <span class="endpoint-path">/api/lecturer/<span class="param">:id</span></span>
+    <span class="endpoint-name">UpdateLecturer</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Update a lecturer by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>UpdateAccountInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-lecturers-deletelecturer">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-DELETE">DELETE</span>
+    <span class="endpoint-path">/api/lecturer/<span class="param">:id</span></span>
+    <span class="endpoint-name">DeleteLecturer</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Delete a lecturer by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+
+<h2 id="mod-subjects">Subjects</h2>
+<p class="section-desc">Subject management</p>
+<div class="endpoint" id="action-subjects-listsubjects">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-GET">GET</span>
+    <span class="endpoint-path">/api/subjects</span>
+    <span class="endpoint-name">ListSubjects</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>List all subjects</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SubjectListResponse</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-subjects-getsubject">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-GET">GET</span>
+    <span class="endpoint-path">/api/subject/<span class="param">:id</span></span>
+    <span class="endpoint-name">GetSubject</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Get a single subject by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>Subject</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-subjects-savesubject">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-POST">POST</span>
+    <span class="endpoint-path">/api/subject</span>
+    <span class="endpoint-name">SaveSubject</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Add or update a subject</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>CreateSubjectInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-subjects-deletesubject">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-DELETE">DELETE</span>
+    <span class="endpoint-path">/api/subject/<span class="param">:id</span></span>
+    <span class="endpoint-name">DeleteSubject</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Delete a subject by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+
+<h2 id="mod-exams">Exams</h2>
+<p class="section-desc">Exam management</p>
+<div class="endpoint" id="action-exams-createexam">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-POST">POST</span>
+    <span class="endpoint-path">/api/exam</span>
+    <span class="endpoint-name">CreateExam</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Create a new exam</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>CreateExamInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>IdResponse</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-exams-listexams">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-GET">GET</span>
+    <span class="endpoint-path">/api/exams</span>
+    <span class="endpoint-name">ListExams</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>List all exams</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>ExamListResponse</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-exams-listexamsbysubject">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-GET">GET</span>
+    <span class="endpoint-path">/api/exams/<span class="param">:subject_id</span></span>
+    <span class="endpoint-name">ListExamsBySubject</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>List exams by subject ID</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>ExamListResponse</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-exams-getexam">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-GET">GET</span>
+    <span class="endpoint-path">/api/exam/<span class="param">:id</span></span>
+    <span class="endpoint-name">GetExam</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Get a single exam by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>ExamDetailResponse</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-exams-updateexam">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-PUT">PUT</span>
+    <span class="endpoint-path">/api/exam/<span class="param">:id</span></span>
+    <span class="endpoint-name">UpdateExam</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Update an existing exam</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>UpdateExamInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-exams-deleteexam">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-DELETE">DELETE</span>
+    <span class="endpoint-path">/api/exam/<span class="param">:id</span></span>
+    <span class="endpoint-name">DeleteExam</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Delete an exam by ID</span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-exams-addstudenttoexam">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-PUT">PUT</span>
+    <span class="endpoint-path">/api/exam/<span class="param">:id</span>/add-student</span>
+    <span class="endpoint-name">AddStudentToExam</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Add a student to exam participants</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>AddStudentToExamInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+<div class="endpoint" id="action-exams-submitexam">
+  <div class="endpoint-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span class="method-badge method-POST">POST</span>
+    <span class="endpoint-path">/api/exam/<span class="param">:id</span>/submit</span>
+    <span class="endpoint-name">SubmitExam</span>
+  </div>
+  <div class="endpoint-detail">
+    <div class="detail-row"><span class="detail-label">Description</span><span>Submit exam answers and grade</span></div>
+    <div class="detail-row"><span class="detail-label">Input</span><span class="detail-value"><code>SubmitExamInput</code></span></div>
+    <div class="detail-row"><span class="detail-label">Output</span><span class="detail-value"><code>SuccessMessage</code></span></div>
+  </div>
+</div>
+
+<h2>Models</h2>
+<div class="model-card" id="model-account">
+  <div class="model-header">
+    <h3>Account</h3>
+    <div class="model-desc">A platform account (admin, lecturer, or student)</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>email</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>name</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>password</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>role</strong></td><td><code>UserRole</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>subjects</strong></td><td><code>string[]</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>finalGrade</strong></td><td><code>float</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-createaccountinput">
+  <div class="model-header">
+    <h3>CreateAccountInput</h3>
+    <div class="model-desc">Data required to create a new account</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>email</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>name</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>password</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>role</strong></td><td><code>UserRole</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>subjects</strong></td><td><code>string[]</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>finalGrade</strong></td><td><code>float</code></td><td><span class="optional-badge">optional</span> </td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-updateaccountinput">
+  <div class="model-header">
+    <h3>UpdateAccountInput</h3>
+    <div class="model-desc">Fields for updating an account</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>email</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>name</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>password</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>role</strong></td><td><code>UserRole</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>subjects</strong></td><td><code>string[]</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>finalGrade</strong></td><td><code>float</code></td><td><span class="optional-badge">optional</span> </td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-studentlistresponse">
+  <div class="model-header">
+    <h3>StudentListResponse</h3>
+    <div class="model-desc">Wrapper for list of students</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>students</strong></td><td><code>Account[]</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-lecturerlistresponse">
+  <div class="model-header">
+    <h3>LecturerListResponse</h3>
+    <div class="model-desc">Wrapper for list of lecturers</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>lecturers</strong></td><td><code>Account[]</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-logininput">
+  <div class="model-header">
+    <h3>LoginInput</h3>
+    <div class="model-desc">Credentials for user login (by ID and password)</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>password</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-loginresponse">
+  <div class="model-header">
+    <h3>LoginResponse</h3>
+    <div class="model-desc">Response after successful authentication</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>user</strong></td><td><code>Account</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-successmessage">
+  <div class="model-header">
+    <h3>SuccessMessage</h3>
+    <div class="model-desc">Generic success response</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>message</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-idresponse">
+  <div class="model-header">
+    <h3>IdResponse</h3>
+    <div class="model-desc">Response containing a generated ID</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>message</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-listquery">
+  <div class="model-header">
+    <h3>ListQuery</h3>
+    <div class="model-desc">Common query parameters for list endpoints</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>search</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>limit</strong></td><td><code>int</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>offset</strong></td><td><code>int</code></td><td><span class="optional-badge">optional</span> </td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-subject">
+  <div class="model-header">
+    <h3>Subject</h3>
+    <div class="model-desc">An academic subject</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>name</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-createsubjectinput">
+  <div class="model-header">
+    <h3>CreateSubjectInput</h3>
+    <div class="model-desc">Data to create or update a subject</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>id</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>name</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-subjectlistresponse">
+  <div class="model-header">
+    <h3>SubjectListResponse</h3>
+    <div class="model-desc">Wrapper for list of subjects</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>subjects</strong></td><td><code>Subject[]</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-exam">
+  <div class="model-header">
+    <h3>Exam</h3>
+    <div class="model-desc">An exam associated with a subject</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>subject_id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>name</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>examDate</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>duration</strong></td><td><code>int</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>total_marks</strong></td><td><code>int</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>questions</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>answers</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>entredID</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>grades</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-createexaminput">
+  <div class="model-header">
+    <h3>CreateExamInput</h3>
+    <div class="model-desc">Data to create a new exam</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>subject_id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>name</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>examDate</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>duration</strong></td><td><code>int</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>total_marks</strong></td><td><code>int</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>questions</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>answers</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-updateexaminput">
+  <div class="model-header">
+    <h3>UpdateExamInput</h3>
+    <div class="model-desc">Data to update an existing exam</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>subject_id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>name</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>examDate</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>duration</strong></td><td><code>int</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>total_marks</strong></td><td><code>int</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>questions</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>answers</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>entredID</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>grades</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-examlistresponse">
+  <div class="model-header">
+    <h3>ExamListResponse</h3>
+    <div class="model-desc">Wrapper for list of exams</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>exams</strong></td><td><code>Exam[]</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-examdetailresponse">
+  <div class="model-header">
+    <h3>ExamDetailResponse</h3>
+    <div class="model-desc">Detailed exam response with parsed questions and answers</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>subject_id</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>name</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>examDate</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>duration</strong></td><td><code>int</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>total_marks</strong></td><td><code>int</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>questions</strong></td><td><code>string[]</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>answers</strong></td><td><code>string[]</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>entredID</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+    <tr><td><strong>grades</strong></td><td><code>string</code></td><td><span class="optional-badge">optional</span> </td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-addstudenttoexaminput">
+  <div class="model-header">
+    <h3>AddStudentToExamInput</h3>
+    <div class="model-desc">Add a student to exam participants</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>studentId</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+<div class="model-card" id="model-submitexaminput">
+  <div class="model-header">
+    <h3>SubmitExamInput</h3>
+    <div class="model-desc">Submit exam answers and grade</div>
+  </div>
+  <table class="model-table"><thead><tr><th>Field</th><th>Type</th><th>Attributes</th></tr></thead><tbody>
+    <tr><td><strong>studentId</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>answers</strong></td><td><code>string</code></td><td>&mdash;</td></tr>
+    <tr><td><strong>grade</strong></td><td><code>int</code></td><td>&mdash;</td></tr>
+  </tbody></table>
+</div>
+
+<h2>Enums</h2>
+<div class="model-card" id="enum-userrole">
+  <div class="model-header">
+    <h3>UserRole</h3>
+  </div>
+  <div class="enum-values">
+    <span class="enum-value">admin</span>
+    <span class="enum-value">lecturer</span>
+    <span class="enum-value">student</span>
+  </div>
+</div>
+
+<div style="text-align:center;padding:48px 0 24px;color:var(--muted-light);font-size:12px">Generated by Veld</div>
+</main>
+<script>
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'':'dark');
+  localStorage.setItem('veld-theme',isDark?'':'dark');
+}
+(function(){const t=localStorage.getItem('veld-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+function filterNav(q){
+  q=q.toLowerCase();
+  document.querySelectorAll('.nav-link').forEach(a=>{a.style.display=a.textContent.toLowerCase().includes(q)?'':'none'});
+  document.querySelectorAll('.nav-group').forEach(g=>{
+    const visible=g.querySelectorAll('.nav-link[style=""],.nav-link:not([style])');
+    g.style.display=visible.length||!q?'':'none';
+  });
+}
+</script>
+</body>
+</html>

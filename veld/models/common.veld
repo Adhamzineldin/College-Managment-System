@@ -1,0 +1,19 @@
+// Shared types used across multiple modules.
+
+model SuccessMessage {
+  description: "Generic success response"
+  message: string
+}
+
+model IdResponse {
+  description: "Response containing a generated ID"
+  message: string
+  id:      string
+}
+
+model ListQuery {
+  description: "Common query parameters for list endpoints"
+  search?: string
+  limit?:  int
+  offset?: int
+}

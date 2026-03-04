@@ -1,0 +1,27 @@
+// Users module — generic account creation and update.
+
+import @models/user
+import @models/common
+
+module Users {
+  description: "Generic user management (add and update)"
+  prefix:      /api
+
+  action AddUser {
+    description: "Create a new user account"
+    method:      POST
+    path:        /add-user
+    input:       CreateAccountInput
+    output:      IdResponse
+    errors:      [MissingFields, Conflict]
+  }
+
+  action UpdateUser {
+    description: "Update an existing user account by ID"
+    method:      PUT
+    path:        /updateUser/:id
+    input:       UpdateAccountInput
+    output:      SuccessMessage
+    errors:      [MissingFields, NotFound]
+  }
+}

@@ -11,10 +11,6 @@ form.addEventListener('submit', async (e) => {
     await validateInputs();
 });
 
-const apiUrl = window.location.hostname === "localhost"
-  ? "http://localhost:5000"  // Local development
-  : "https://app5000.maayn.me";
-
 const validateInputs = async () => {
     const idValue = id.value.trim();
     const passwordValue = password.value.trim();
@@ -42,33 +38,29 @@ const validateInputs = async () => {
 
     if (valid) {
         try {
+            // Use Veld client: Auth.authenticate
+            const data = await veld.Auth.authenticate({ id: idValue, password: passwordValue });
 
-            const response = await fetch(`${apiUrl}/api/authenticate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id: idValue, password: passwordValue }),
-            });
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
 
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem('currentUser', JSON.stringify(data.user));
-
-                if (data.user.role === 'student') {
-                    window.location.href = '../../html/student/Std_Profile.html';
-                } else if (data.user.role === 'lecturer') {
-                    window.location.href = '../../html/lecturer/lecturerDashboard.html';
-                } else if (data.user.role === 'admin') {
-                    window.location.href = '../../html/admin/adminDashboard.html';
-                }
-            } else {
-                alert(data.message || 'Invalid ID or Password');
+            if (data.user.role === 'student') {
+                window.location.href = '../../html/student/Std_Profile.html';
+            } else if (data.user.role === 'lecturer') {
+                window.location.href = '../../html/lecturer/lecturerDashboard.html';
+            } else if (data.user.role === 'admin') {
+                window.location.href = '../../html/admin/adminDashboard.html';
             }
         } catch (error) {
-            console.error('Error authenticating user:', error);
-            alert('An error occurred. Please try again later.');
+            if (veld.isErrorCode(error, veld.Auth.errors.authenticate.invalidCredentials)) {
+                alert('Invalid ID or Password');
+            } else if (veld.isErrorCode(error, veld.Auth.errors.authenticate.missingFields)) {
+                alert('ID and Password are required.');
+            } else if (veld.isApiError(error)) {
+                alert(error.body || 'Authentication failed');
+            } else {
+                console.error('Error authenticating user:', error);
+                alert('An error occurred. Please try again later.');
+            }
         }
     }
 };

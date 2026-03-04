@@ -13,15 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentLecturerIndex = -1;
     let subjects = [];
 
-    const apiUrl = window.location.hostname === "localhost"
-  ? "http://localhost:5000"  // Local development
-  : "https://app5000.maayn.me";
-
-    // Fetch subjects from backend
+    // Fetch subjects using Veld client
     const fetchSubjects = async () => {
         try {
-            const response = await fetch(`${apiUrl}/api/subjects`);
-            const data = await response.json();
+            const data = await veld.Subjects.listSubjects();
             if (data.subjects) {
                 subjects = data.subjects;
                 renderSubjects();
@@ -37,14 +32,14 @@ document.addEventListener("DOMContentLoaded", () => {
         subjects.forEach(subject => {
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
-            checkbox.value = subject.id;  // Use subject.id here
-            checkbox.id = `subject-${subject.id}`;  // ID is based on subject.id
+            checkbox.value = subject.id;
+            checkbox.id = `subject-${subject.id}`;
             checkbox.classList.add("form-check-input");
 
             const label = document.createElement("label");
             label.setAttribute("for", checkbox.id);
             label.classList.add("form-check-label");
-            label.textContent = subject.name;  // Display subject.name
+            label.textContent = subject.name;
 
             const div = document.createElement("div");
             div.classList.add("form-check");
@@ -55,18 +50,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    // Fetch and render all lecturers from the backend
+    // Fetch and render all lecturers using Veld client
     const fetchLecturers = async () => {
         try {
-            const response = await fetch(`${apiUrl}/api/lecturers`);
-            const data = await response.json();
+            const data = await veld.Lecturers.listLecturers();
             if (data.lecturers) {
                 renderLecturers(data.lecturers);
             }
         } catch (error) {
             console.error("Error fetching lecturers:", error);
         }
-        
     };
 
     // Render lecturer list
@@ -90,19 +83,17 @@ document.addEventListener("DOMContentLoaded", () => {
             : `<p>No lecturers found.</p>`;
     };
 
-    // Open the modal for editing or adding a lecturer
+    // Open the modal for editing or adding a lecturer using Veld client
     const openModal = async (lecturerId = null) => {
         if (lecturerId) {
             try {
-                const response = await fetch(`${apiUrl}/api/lecturer/${lecturerId}`);
-                const lecturer = await response.json();
+                const lecturer = await veld.Lecturers.getLecturer(lecturerId);
 
                 if (lecturer) {
                     nameInput.value = lecturer.name;
                     emailInput.value = lecturer.email;
-                    idInput.value = lecturer.id; // ID is fetched from the backend
-                    idInput.disabled = true; // Disable the ID field
-
+                    idInput.value = lecturer.id;
+                    idInput.disabled = true;
                     passwordInput.value = lecturer.password;
 
                     Array.from(subjectsSelect.querySelectorAll('input[type="checkbox"]')).forEach(checkbox => {
@@ -126,16 +117,16 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.show();
     };
 
-    // Save lecturer to the backend (add or update)
+    // Save lecturer using Veld client (add or update)
     const saveLecturer = async () => {
         const name = nameInput.value.trim();
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
         const selectedSubjects = Array.from(subjectsSelect.querySelectorAll('input[type="checkbox"]:checked')).map(
-            checkbox => checkbox.value  // Save subject id, not name
+            checkbox => checkbox.value
         );
 
-        if (!name || !email || !password || selectedSubjects.length === 0 ) {
+        if (!name || !email || !password || selectedSubjects.length === 0) {
             alert("Please fill all fields");
             return;
         }
@@ -144,32 +135,32 @@ document.addEventListener("DOMContentLoaded", () => {
             email,
             name,
             password,
-            role: 'lecturer',  // Set role to 'lecturer' as per your backend
-            subjects: selectedSubjects, // Use subject ids here
+            role: 'lecturer',
+            subjects: selectedSubjects,
         };
 
         try {
-            const method = currentLecturerIndex === -1 ? "POST" : "PUT";
-            const url = currentLecturerIndex === -1
-                ? `${apiUrl}/api/add-user`
-                : `${apiUrl}/api/lecturer/${currentLecturerIndex}`;
-
-            const response = await fetch(url, {
-                method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(lecturerData)
-            });
-
-            const result = await response.json();
-
-            if (response.status === 200) {
-                fetchLecturers();  // Refresh the lecturer list
-                modal.hide();     // Close the modal
+            if (currentLecturerIndex === -1) {
+                // Create new lecturer via Veld Users.addUser
+                await veld.Users.addUser(lecturerData);
             } else {
-                alert("Error saving lecturer data: " + result.message);
+                // Update existing lecturer via Veld Lecturers.updateLecturer
+                await veld.Lecturers.updateLecturer(currentLecturerIndex, lecturerData);
             }
+
+            fetchLecturers();
+            modal.hide();
         } catch (error) {
             console.error("Error saving lecturer:", error);
+            if (veld.isErrorCode(error, veld.Users.errors.addUser.missingFields)) {
+                alert("Missing required fields when creating lecturer.");
+            } else if (veld.isErrorCode(error, veld.Lecturers.errors.updateLecturer.notFound)) {
+                alert("Lecturer not found.");
+            } else if (veld.isErrorCode(error, veld.Lecturers.errors.updateLecturer.missingFields)) {
+                alert("Missing required fields when updating lecturer.");
+            } else if (veld.isApiError(error)) {
+                alert("Error saving lecturer data: " + error.body);
+            }
         }
     };
 
@@ -199,28 +190,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Delete lecturer function
+    // Delete lecturer using Veld client
     const deleteLecturer = async (lecturerId) => {
         const confirmed = confirm("Are you sure you want to delete this lecturer?");
         if (confirmed) {
             try {
-                const response = await fetch(`${apiUrl}/api/lecturer/${lecturerId}`, {
-                    method: "DELETE"
-                });
-                const result = await response.json();
-                if (result.success) {
-                    fetchLecturers();
-                } else {
-                    alert("Error deleting lecturer");
-                }
+                await veld.Lecturers.deleteLecturer(lecturerId);
+                fetchLecturers();
             } catch (error) {
                 console.error("Error deleting lecturer:", error);
+                alert("Error deleting lecturer");
             }
         }
     };
 
     // Initial data fetch
-    fetchSubjects();  // Fetch subjects
-    fetchLecturers();  // Fetch lecturers
-
+    fetchSubjects();
+    fetchLecturers();
 });

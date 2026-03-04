@@ -1,0 +1,19 @@
+// Subject domain models.
+
+model Subject {
+  description: "An academic subject"
+  id:   string
+  name: string
+}
+
+model CreateSubjectInput {
+  description: "Data to create or update a subject"
+  id?:  string
+  name: string
+}
+
+model SubjectListResponse {
+  description: "Wrapper for list of subjects"
+  subjects: Subject[]
+}
+
